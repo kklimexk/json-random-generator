@@ -48,8 +48,10 @@ object ReflectionUtils {
             Class.forName(returnTypeSymbol.fullName) match {
               case t if t == classOf[Object] =>
                 println(t)
+                invokeMethod(obj, null,
+                  methodName.toString.replaceFirst("g", "s"), t)
               case t if t == classOf[String] =>
-                println("String")
+                println(t)
                 invokeMethod(obj, "ExampleString",
                   methodName.toString.replaceFirst("g", "s"), t)
               case _ =>
