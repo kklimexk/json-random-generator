@@ -55,11 +55,10 @@ object ReflectionUtils {
                 invokeMethod(obj, "ExampleString",
                   methodName.toString.replaceFirst("g", "s"), t)
               case _ =>
+                loop(Class.forName(returnTypeSymbol.fullName).newInstance(),
+                  methodReturnType)
+                //loop(mirror.reflect(methodReturnType).instance, methodReturnType)
             }
-
-            loop(Class.forName(returnTypeSymbol.fullName).newInstance(),
-              methodReturnType)
-            //loop(mirror.reflect(methodReturnType).instance, methodReturnType)
           }
         }
       }
