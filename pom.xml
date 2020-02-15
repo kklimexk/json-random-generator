@@ -12,8 +12,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
-        <scala.version>2.13.1</scala.version>
-        <scala.compat.version>2.13</scala.compat.version>
+        <scala.version>2.12.10</scala.version>
+        <scala.compat.version>2.12</scala.compat.version>
         <commons.lang.version>2.4</commons.lang.version>
         <jackson.databind.version>2.5.4</jackson.databind.version>
     </properties>
@@ -84,8 +84,8 @@
                 <version>1.0.2</version>
                 <configuration>
                     <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
-                    <targetPackage>com.example.types</targetPackage>
-                    <targetLanguage>scala</targetLanguage>
+                    <targetPackage>output</targetPackage>
+                    <includeAdditionalProperties>false</includeAdditionalProperties>
                 </configuration>
                 <executions>
                     <execution>
