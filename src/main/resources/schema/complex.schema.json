@@ -9,7 +9,8 @@
         "state":          { "type": "string" },
         "buildingNo":     { "type": "integer" },
         "flatNo":         { "type": "number" },
-        "isTaken":        { "type": "boolean" }
+        "isTaken":        { "type": "boolean" },
+        "info":           { "type": "null" }
       },
       "required": ["street_address", "city", "state"]
     },
