@@ -1,11 +1,11 @@
 package main
 
-import output.{ComplexSchema, NumbersArr}
-import utils.ReflectionUtils
+import generator.JsonRandomGenerator
+import output.ComplexSchema
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val jsonObj = ReflectionUtils.evalMemberValues(new ComplexSchema())
+    val jsonObj = JsonRandomGenerator.generate(new ComplexSchema())
 
     println(jsonObj)
   }
