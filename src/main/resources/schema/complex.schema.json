@@ -10,7 +10,8 @@
         "buildingNo":     { "type": "integer" },
         "flatNo":         { "type": "number" },
         "isTaken":        { "type": "boolean" },
-        "info":           { "type": "null" }
+        "info":           { "type": "null" },
+        "typeOfAddress":  { "enum": ["normal", "special"] }
       },
       "required": ["street_address", "city", "state"]
     },
