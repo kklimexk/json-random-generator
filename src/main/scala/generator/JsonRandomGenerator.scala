@@ -2,6 +2,7 @@ package generator
 
 import java.util
 
+import org.scalacheck.{Arbitrary, Gen}
 import utils.ReflectionUtils._
 
 import scala.reflect.runtime.universe._
@@ -34,7 +35,7 @@ object JsonRandomGenerator {
                   invokeMethod(obj, null,
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t == classOf[String] =>
-                  invokeMethod(obj, "ExampleString",
+                  invokeMethod(obj, defaultStrGen(10).sample.get,
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t == classOf[java.lang.Integer] =>
                   invokeMethod(obj, new java.lang.Integer(30),
@@ -70,6 +71,8 @@ object JsonRandomGenerator {
 
     loop(topLevelObj, c.tpe)
   }
+
+  val defaultStrGen: Int => Gen[String] = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
   private def getEnumValues[E](enumClass: Class[E]): Array[E] = {
     val f = enumClass.getDeclaredField("$VALUES")

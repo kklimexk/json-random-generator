@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>zio-json-random-generator</artifactId>
+    <artifactId>json-random-generator</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -16,6 +16,7 @@
         <scala.compat.version>2.12</scala.compat.version>
         <commons.lang.version>2.4</commons.lang.version>
         <jackson.databind.version>2.5.4</jackson.databind.version>
+        <scalacheck.version>1.14.3</scalacheck.version>
     </properties>
 
     <dependencies>
@@ -38,6 +39,11 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalacheck</groupId>
+            <artifactId>scalacheck_${scala.compat.version}</artifactId>
+            <version>${scalacheck.version}</version>
         </dependency>
         <!-- Test -->
         <dependency>
