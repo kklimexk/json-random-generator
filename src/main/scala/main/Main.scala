@@ -1,6 +1,6 @@
 package main
 
-import output.ComplexSchema
+import output.{ComplexSchema, NumbersArr}
 import utils.ReflectionUtils
 
 object Main {
@@ -8,6 +8,5 @@ object Main {
     val jsonObj = ReflectionUtils.evalMemberValues(new ComplexSchema())
 
     println(jsonObj)
-    println(jsonObj.getBillingAddress)
   }
 }

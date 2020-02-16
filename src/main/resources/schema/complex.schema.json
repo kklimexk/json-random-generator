@@ -6,7 +6,10 @@
       "properties": {
         "street_address": { "type": "string" },
         "city":           { "type": "string" },
-        "state":          { "type": "string" }
+        "state":          { "type": "string" },
+        "buildingNo":     { "type": "integer" },
+        "flatNo":         { "type": "number" },
+        "isTaken":        { "type": "boolean" }
       },
       "required": ["street_address", "city", "state"]
     },

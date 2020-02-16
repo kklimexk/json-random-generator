@@ -1,5 +1,7 @@
 package utils
 
+import java.util
+
 import scala.reflect._
 import scala.reflect.runtime.universe._
 
@@ -25,19 +27,10 @@ object ReflectionUtils {
           val value = objMirror.reflectMethod(m.asMethod)()
           println(s"VAL/DEF: $m = $value, type: ${m.typeSignature}")
         }*/
-
         if (m.isMethod) {
           val methodFullName = m.asMethod.fullName
           val methodName = m.asMethod.name
           val methodReturnType = m.asMethod.returnType
-
-          /*println("Example: " + methodReturnType)
-          methodReturnType match {
-            case _ if methodFullName.startsWith("com.example.types") &&
-              methodFullName.contains("get") =>
-              println(s"$methodName, $methodReturnType")
-              loop(mirror.reflect(methodReturnType).instance, methodReturnType)
-          }*/
 
           if (methodFullName.startsWith("output") &&
             methodFullName.contains("get")) {
@@ -54,9 +47,27 @@ object ReflectionUtils {
                 println(t)
                 invokeMethod(obj, "ExampleString",
                   methodName.toString.replaceFirst("g", "s"), t)
-              case _ =>
-                loop(Class.forName(returnTypeSymbol.fullName).newInstance(),
-                  methodReturnType)
+              case t if t == classOf[java.lang.Integer] =>
+                println(t)
+                invokeMethod(obj, new java.lang.Integer(30),
+                  methodName.toString.replaceFirst("g", "s"), t)
+              case t if t == classOf[java.lang.Double] =>
+                println(t)
+                invokeMethod(obj, new java.lang.Double(11.1),
+                  methodName.toString.replaceFirst("g", "s"), t)
+              case t if t == classOf[java.lang.Boolean] =>
+                println(t)
+                invokeMethod(obj, new java.lang.Boolean(false),
+                  methodName.toString.replaceFirst("g", "s"), t)
+              case t if t == classOf[java.util.List[_]] =>
+                println(t)
+                invokeMethod(obj, new util.ArrayList(),
+                  methodName.toString.replaceFirst("g", "s"), t)
+              case t =>
+                val newInstance = Class.forName(returnTypeSymbol.fullName).newInstance()
+                invokeMethod(obj, newInstance.asInstanceOf[AnyRef],
+                  methodName.toString.replaceFirst("g", "s"), t)
+                loop(newInstance, methodReturnType)
                 //loop(mirror.reflect(methodReturnType).instance, methodReturnType)
             }
           }
