@@ -28,7 +28,12 @@ class JsonRandomGenerator(strGen: Gen[String],
 
             val returnTypeSymbolFullName = {
               val typeS = methodReturnType.typeSymbol.asType
-              if (typeS.isJavaEnum)
+              val typeSFullName = typeS.fullName
+
+              val typeSArr = typeSFullName.split("\\.").toList
+              val isInnerEnum = typeSArr.lift(typeSArr.size - 2).exists(_.head.isUpper)
+
+              if (typeS.isJavaEnum && isInnerEnum)
                 typeS.fullName.patch(typeS.fullName.lastIndexOf('.'), "$", 1)
               else typeS.fullName
             }
