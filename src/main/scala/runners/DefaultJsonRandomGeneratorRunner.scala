@@ -13,7 +13,7 @@ import generators.`type`.StringTypeGenerators.DefaultStringTypeGenerator
 import scala.reflect.runtime.universe._
 
 class DefaultJsonRandomGeneratorRunner extends JsonRandomGeneratorRunner {
-  override def run[A](topLevelObj: A)(implicit c: TypeTag[A]): Unit = {
+  override def run[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
     val jsonObj = new JsonRandomGenerator(
       DefaultStringTypeGenerator(),
       DefaultIntegerTypeGenerator(),
@@ -29,5 +29,7 @@ class DefaultJsonRandomGeneratorRunner extends JsonRandomGeneratorRunner {
     val jsonString = mapper.writeValueAsString(jsonObj)
 
     println(jsonString)
+
+    jsonObj
   }
 }
