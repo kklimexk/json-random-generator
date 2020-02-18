@@ -2,12 +2,16 @@ package generator
 
 import java.util
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Gen
 import utils.ReflectionUtils._
 
 import scala.reflect.runtime.universe._
 
-object JsonRandomGenerator {
+class JsonRandomGenerator(strGen: Gen[String],
+                          intGen: Gen[java.lang.Integer],
+                          doubleGen: Gen[java.lang.Double],
+                          booleanGen: Gen[java.lang.Boolean],
+                          enumGen: Array[Any] => Gen[Any]) {
   def generate[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
 
     def loop(obj: Any, tp: Type): A = {
@@ -35,20 +39,20 @@ object JsonRandomGenerator {
                   invokeMethod(obj, null,
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t == classOf[String] =>
-                  invokeMethod(obj, defaultStrGen(10).sample.get,
+                  invokeMethod(obj, strGen.sample.get,
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t == classOf[java.lang.Integer] =>
-                  invokeMethod(obj, new java.lang.Integer(30),
+                  invokeMethod(obj, intGen.sample.get,
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t == classOf[java.lang.Double] =>
-                  invokeMethod(obj, new java.lang.Double(11.1),
+                  invokeMethod(obj, doubleGen.sample.get,
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t == classOf[java.lang.Boolean] =>
-                  invokeMethod(obj, new java.lang.Boolean(false),
+                  invokeMethod(obj, booleanGen.sample.get,
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t.isEnum =>
-                  val enumValues = getEnumValues(t)
-                  invokeMethod(obj, enumValues.head.asInstanceOf[AnyRef],
+                  val enumValues = getEnumValues(t.asInstanceOf[Class[Any]])
+                  invokeMethod(obj, enumGen(enumValues).sample.get.asInstanceOf[AnyRef],
                     methodName.toString.replaceFirst("g", "s"), t)
                 case t if t == classOf[java.util.List[_]] =>
                   invokeMethod(obj, new util.ArrayList(),
@@ -71,8 +75,6 @@ object JsonRandomGenerator {
 
     loop(topLevelObj, c.tpe)
   }
-
-  val defaultStrGen: Int => Gen[String] = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
   private def getEnumValues[E](enumClass: Class[E]): Array[E] = {
     val f = enumClass.getDeclaredField("$VALUES")
