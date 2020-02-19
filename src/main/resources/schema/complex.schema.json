@@ -38,6 +38,10 @@
       ]
     },
     "numbersArray": { "$ref": "#/definitions/numbersArr" },
-    "stringField": { "type": "string" }
+    "stringField": { "type": "string" },
+    "coolMap": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
   }
 }

@@ -91,7 +91,6 @@
                 <configuration>
                     <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
                     <targetPackage>output</targetPackage>
-                    <includeAdditionalProperties>false</includeAdditionalProperties>
                 </configuration>
                 <executions>
                     <execution>

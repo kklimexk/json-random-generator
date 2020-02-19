@@ -11,7 +11,8 @@ class JsonRandomGenerator(strGen: Gen[String],
                           intGen: Gen[java.lang.Integer],
                           doubleGen: Gen[java.lang.Double],
                           booleanGen: Gen[java.lang.Boolean],
-                          enumGen: Array[Any] => Gen[Any]) {
+                          enumGen: Array[Any] => Gen[Any],
+                          mapGen: Gen[Map[String, String]]) {
   def generate[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
 
     def loop(obj: Any, tp: Type): A = {
@@ -62,9 +63,14 @@ class JsonRandomGenerator(strGen: Gen[String],
                 case t if t == classOf[java.util.List[_]] =>
                   invokeMethod(obj, Seq(new util.ArrayList()),
                     methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t == classOf[java.util.Map[_, _]] =>
-                  invokeMethod(obj, Seq(new util.HashMap()),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
+                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.toString) == List("String", "String") =>
+                  val generatedMap = mapGen.sample.get
+                  generatedMap.foreach {
+                    case (k, v) => invokeMethod(obj, Seq(k, v),
+                      "setAdditionalProperty", Seq(classOf[String], classOf[String]))
+                  }
+                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.toString) == List("String", "Object") =>
+                  //Do nothing
                 case t =>
                   val newInstance = Class.forName(returnTypeSymbolFullName).newInstance()
                   invokeMethod(obj, Seq(newInstance.asInstanceOf[AnyRef]),

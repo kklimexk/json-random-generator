@@ -8,6 +8,7 @@ import generators.`type`.BooleanTypeGenerators.DefaultBooleanTypeGenerator
 import generators.`type`.DoubleTypeGenerators.DefaultDoubleTypeGenerator
 import generators.`type`.EnumTypeGenerators.DefaultEnumTypeGenerator
 import generators.`type`.IntegerTypeGenerators.DefaultIntegerTypeGenerator
+import generators.`type`.MapTypeGenerators.DefaultMapTypeGenerator
 import generators.`type`.StringTypeGenerators.DefaultStringTypeGenerator
 
 import scala.reflect.runtime.universe._
@@ -19,7 +20,8 @@ class DefaultJsonRandomGeneratorRunner extends JsonRandomGeneratorRunner {
       DefaultIntegerTypeGenerator(),
       DefaultDoubleTypeGenerator(),
       DefaultBooleanTypeGenerator(),
-      DefaultEnumTypeGenerator()
+      DefaultEnumTypeGenerator(),
+      DefaultMapTypeGenerator()
     ).generate(topLevelObj)
 
     println(jsonObj)
