@@ -41,31 +41,34 @@ class JsonRandomGenerator(strGen: Gen[String],
             try {
               Class.forName(returnTypeSymbolFullName) match {
                 case t if t == classOf[Object] =>
-                  invokeMethod(obj, null,
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(null),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[String] =>
-                  invokeMethod(obj, strGen.sample.get,
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(strGen.sample.get),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.lang.Integer] =>
-                  invokeMethod(obj, intGen.sample.get,
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(intGen.sample.get),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.lang.Double] =>
-                  invokeMethod(obj, doubleGen.sample.get,
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(doubleGen.sample.get),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.lang.Boolean] =>
-                  invokeMethod(obj, booleanGen.sample.get,
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(booleanGen.sample.get),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t.isEnum =>
                   val enumValues = getEnumValues(t.asInstanceOf[Class[Any]])
-                  invokeMethod(obj, enumGen(enumValues).sample.get.asInstanceOf[AnyRef],
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.util.List[_]] =>
-                  invokeMethod(obj, new util.ArrayList(),
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(new util.ArrayList()),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
+                case t if t == classOf[java.util.Map[_, _]] =>
+                  invokeMethod(obj, Seq(new util.HashMap()),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t =>
                   val newInstance = Class.forName(returnTypeSymbolFullName).newInstance()
-                  invokeMethod(obj, newInstance.asInstanceOf[AnyRef],
-                    methodName.toString.replaceFirst("g", "s"), t)
+                  invokeMethod(obj, Seq(newInstance.asInstanceOf[AnyRef]),
+                    methodName.toString.replaceFirst("g", "s"), Seq(t))
                   loop(newInstance, methodReturnType)
                 //loop(mirror.reflect(methodReturnType).instance, methodReturnType)
               }

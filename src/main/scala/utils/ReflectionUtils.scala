@@ -4,8 +4,8 @@ import scala.reflect.api
 import scala.reflect.runtime.universe._
 
 object ReflectionUtils {
-  def invokeMethod[P, R](obj: Any, arg: Object, methodName: String, paramType: Class[P]): R =
-    obj.getClass.getMethod(methodName, paramType).invoke(obj, arg).asInstanceOf[R]
+  def invokeMethod[R](obj: Any, args: Seq[Object], methodName: String, paramTypes: Seq[Class[_]]): R =
+    obj.getClass.getMethod(methodName, paramTypes: _*).invoke(obj, args: _*).asInstanceOf[R]
 
   def type2TypeTag[T](mirror: Mirror, tpe: Type): TypeTag[T] =
     TypeTag(mirror, new api.TypeCreator {
