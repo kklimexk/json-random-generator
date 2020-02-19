@@ -13,4 +13,15 @@ object ReflectionUtils {
         if (m eq mirror) tpe.asInstanceOf[U#Type]
         else throw new IllegalArgumentException(s"Type tag defined in $mirror cannot be migrated to other mirrors.")
     })
+
+  def getAnnotationProperties(annotation: Annotation): (String, Map[String, String]) = {
+    val returnValue = annotation.tree.children
+      .filter(a => a.isInstanceOf[AssignOrNamedArg])
+      .map(_.asInstanceOf[AssignOrNamedArg])
+      .map(ap => (ap.lhs, ap.rhs))
+
+    annotationTypeName(annotation) -> returnValue.map { case (annParam, annValue) => annParam.toString() -> annValue.toString()}.toMap
+  }
+
+  def annotationTypeName(annotation: Annotation): String = annotation.tree.tpe.typeSymbol.name.toString
 }
