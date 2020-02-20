@@ -6,6 +6,7 @@ import scala.reflect.runtime.universe._
 object Main {
   def main(args: Array[String]): Unit = {
     val rootClassName = "output.ComplexSchema"
+    val numOfRecords = 10
 
     val clazz = Class.forName(rootClassName)
     val mirror = runtimeMirror(clazz.getClassLoader)
@@ -14,6 +15,6 @@ object Main {
     val typeSignature = symbol.typeSignature
 
     val jsonRandomGeneratorRunner = new DefaultJsonRandomGeneratorRunner()
-    jsonRandomGeneratorRunner.run(clazz.newInstance())(type2TypeTag(mirror, typeSignature))
+    jsonRandomGeneratorRunner.run(clazz.newInstance(), numOfRecords)(type2TypeTag(mirror, typeSignature))
   }
 }
