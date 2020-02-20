@@ -5,6 +5,7 @@ import generators.`type`.BooleanTypeGenerators.DefaultBooleanTypeGenerator
 import generators.`type`.DoubleTypeGenerators.DefaultDoubleTypeGenerator
 import generators.`type`.EnumTypeGenerators.DefaultEnumTypeGenerator
 import generators.`type`.IntegerTypeGenerators.DefaultIntegerTypeGenerator
+import generators.`type`.ListTypeGenerators.DefaultEnumListTypeGenerator
 import generators.`type`.MapTypeGenerators.DefaultMapTypeGenerator
 import generators.`type`.StringTypeGenerators.DefaultStringTypeGenerator
 
@@ -15,6 +16,7 @@ class DefaultJsonRandomGeneratorRunner extends JsonRandomGeneratorRunner {
     DefaultDoubleTypeGenerator(),
     DefaultBooleanTypeGenerator(),
     DefaultEnumTypeGenerator(),
-    DefaultMapTypeGenerator()
+    DefaultMapTypeGenerator(),
+    DefaultEnumListTypeGenerator()
   )
 }

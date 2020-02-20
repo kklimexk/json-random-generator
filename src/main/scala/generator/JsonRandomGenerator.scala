@@ -4,6 +4,7 @@ import java.util
 
 import org.scalacheck.Gen
 import utils.ReflectionUtils._
+import scala.collection.JavaConverters._
 
 import scala.reflect.runtime.universe._
 
@@ -12,8 +13,11 @@ class JsonRandomGenerator(strGen: Gen[String],
                           doubleGen: Gen[java.lang.Double],
                           booleanGen: Gen[java.lang.Boolean],
                           enumGen: Array[Any] => Gen[Any],
-                          mapGen: Gen[Map[String, String]]) {
+                          mapGen: Gen[Map[String, String]],
+                          enumListGen: (Int, Array[Any]) => Gen[util.List[Any]]) {
   def generate[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
+
+    val runtimeM = runtimeMirror(getClass.getClassLoader)
 
     def loop(obj: Any, tp: Type): A = {
       val members = tp.decls.filter(_.isPublic)
@@ -61,15 +65,21 @@ class JsonRandomGenerator(strGen: Gen[String],
                   invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
                     methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.util.List[_]] =>
-                  invokeMethod(obj, Seq(new util.ArrayList()),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.toString) == List("String", "String") =>
+                  val listTypeParam = methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass).head
+                  listTypeParam match {
+                    case ltp if ltp.isEnum =>
+                      val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
+                      invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
+                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+                    case _ => //TODO
+                  }
+                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[String]) =>
                   val generatedMap = mapGen.sample.get
                   generatedMap.foreach {
                     case (k, v) => invokeMethod(obj, Seq(k, v),
                       "setAdditionalProperty", Seq(classOf[String], classOf[String]))
                   }
-                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.toString) == List("String", "Object") =>
+                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[Object]) =>
                   //Do nothing
                 case t =>
                   val newInstance = Class.forName(returnTypeSymbolFullName).newInstance()
