@@ -3,6 +3,7 @@ package generators.`type`
 import java.util
 
 import generators.`type`.EnumTypeGenerators.DefaultEnumTypeGenerator
+import generators.`type`.IntegerTypeGenerators.DefaultIntegerTypeGenerator
 import generators.`type`.StringTypeGenerators.DefaultStringTypeGenerator
 import org.scalacheck.Gen
 
@@ -18,5 +19,10 @@ object ListTypeGenerators {
   object DefaultStringListTypeGenerator {
     def apply(): Int => Gen[util.List[String]] = (numOfElem: Int) =>
       Gen.listOfN(numOfElem, DefaultStringTypeGenerator()).map(_.asJava)
+  }
+
+  object DefaultIntegerListTypeGenerator {
+    def apply(): Int => Gen[util.List[java.lang.Integer]] = (numOfElem: Int) =>
+      Gen.listOfN(numOfElem, DefaultIntegerTypeGenerator()).map(_.asJava)
   }
 }

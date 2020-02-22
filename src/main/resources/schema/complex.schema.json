@@ -48,6 +48,12 @@
       "items": {
         "type": "string"
       }
+    },
+    "integerArray": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
     }
   }
 }
