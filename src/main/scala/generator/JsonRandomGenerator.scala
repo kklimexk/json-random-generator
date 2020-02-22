@@ -76,7 +76,7 @@ class JsonRandomGenerator(strGen: Gen[String],
                     case ltp if ltp == classOf[java.lang.Integer] =>
                       invokeMethod(obj, Seq(intListGen(2).sample.get),
                         methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-                    case t if t == classOf[java.lang.Double] =>
+                    case ltp if ltp == classOf[java.lang.Double] =>
                       invokeMethod(obj, Seq(doubleListGen(2).sample.get),
                         methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
                     case ltp if ltp.isEnum =>
