@@ -60,6 +60,12 @@
       "items": {
         "type": "number"
       }
+    },
+    "booleanArray": {
+      "type": "array",
+      "items": {
+        "type": "boolean"
+      }
     }
   }
 }
