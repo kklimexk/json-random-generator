@@ -66,6 +66,10 @@
       "items": {
         "type": "boolean"
       }
+    },
+    "addressArray": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/address" }
     }
   }
 }

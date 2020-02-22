@@ -30,22 +30,13 @@ class JsonRandomGenerator(strGen: Gen[String],
           val methodFullName = m.asMethod.fullName
           val methodName = m.asMethod.name
           val methodReturnType = m.asMethod.returnType
+          val methodTypeArgs = methodReturnType.typeArgs
 
           if (methodFullName.startsWith("output") &&
             methodFullName.contains("get")) {
             println(s"$methodName, $methodReturnType")
 
-            val returnTypeSymbolFullName = {
-              val typeS = methodReturnType.typeSymbol.asType
-              val typeSFullName = typeS.fullName
-
-              val typeSArr = typeSFullName.split("\\.").toList
-              val isInnerEnum = typeSArr.lift(typeSArr.size - 2).exists(_.head.isUpper)
-
-              if (typeS.isJavaEnum && isInnerEnum)
-                typeS.fullName.patch(typeS.fullName.lastIndexOf('.'), "$", 1)
-              else typeS.fullName
-            }
+            val returnTypeSymbolFullName = resolveTypeSymbolFullName(methodReturnType)
 
             try {
               Class.forName(returnTypeSymbolFullName) match {
@@ -69,7 +60,10 @@ class JsonRandomGenerator(strGen: Gen[String],
                   invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
                     methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.util.List[_]] =>
-                  val listTypeParam = methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass).head
+                  val listTypeArg = methodTypeArgs.head
+                  val listTypeSymbolFullName = resolveTypeSymbolFullName(listTypeArg.typeSymbol.typeSignature)
+                  val listTypeParam = runtimeM.runtimeClass(listTypeArg.typeSymbol.asClass)
+
                   listTypeParam match {
                     case ltp if ltp == classOf[Object] =>
                       //Do nothing
@@ -89,15 +83,23 @@ class JsonRandomGenerator(strGen: Gen[String],
                       val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
                       invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
                         methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-                    case _ => //TODO
+                    case _ =>
+                      val newInstance1 = Class.forName(listTypeSymbolFullName).newInstance()
+                      val newInstance2 = Class.forName(listTypeSymbolFullName).newInstance()
+                      val instanceList = Seq(newInstance1, newInstance2)
+
+                      invokeMethod(obj, Seq(instanceList.asJava),
+                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+
+                      instanceList.foreach(ins => loop(ins, listTypeArg))
                   }
-                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[String]) =>
+                case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[String]) =>
                   val generatedMap = mapGen.sample.get
                   generatedMap.foreach {
                     case (k, v) => invokeMethod(obj, Seq(k, v),
                       "setAdditionalProperty", Seq(classOf[String], classOf[String]))
                   }
-                case t if t == classOf[java.util.Map[_, _]] && methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[Object]) =>
+                case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[Object]) =>
                   //Do nothing
                 case t =>
                   val newInstance = Class.forName(returnTypeSymbolFullName).newInstance()
@@ -124,5 +126,17 @@ class JsonRandomGenerator(strGen: Gen[String],
     val o = f.get(null)
 
     o.asInstanceOf[Array[E]]
+  }
+
+  private def resolveTypeSymbolFullName(methodReturnType: Type): String = {
+    val typeS = methodReturnType.typeSymbol.asType
+    val typeSFullName = typeS.fullName
+
+    val typeSArr = typeSFullName.split("\\.").toList
+    val isInnerEnum = typeSArr.lift(typeSArr.size - 2).exists(_.head.isUpper)
+
+    if (typeS.isJavaEnum && isInnerEnum)
+      typeS.fullName.patch(typeS.fullName.lastIndexOf('.'), "$", 1)
+    else typeS.fullName
   }
 }
