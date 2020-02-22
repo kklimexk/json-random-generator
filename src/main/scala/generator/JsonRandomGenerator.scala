@@ -71,6 +71,8 @@ class JsonRandomGenerator(strGen: Gen[String],
                 case t if t == classOf[java.util.List[_]] =>
                   val listTypeParam = methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass).head
                   listTypeParam match {
+                    case ltp if ltp == classOf[Object] =>
+                      //Do nothing
                     case ltp if ltp == classOf[String] =>
                       invokeMethod(obj, Seq(strListGen(2).sample.get),
                         methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
