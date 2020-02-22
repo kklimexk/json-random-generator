@@ -42,6 +42,12 @@
     "coolMap": {
       "type": "object",
       "additionalProperties": { "type": "string" }
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   }
 }

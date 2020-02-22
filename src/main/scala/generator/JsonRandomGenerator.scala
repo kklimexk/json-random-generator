@@ -14,7 +14,8 @@ class JsonRandomGenerator(strGen: Gen[String],
                           booleanGen: Gen[java.lang.Boolean],
                           enumGen: Array[Any] => Gen[Any],
                           mapGen: Gen[Map[String, String]],
-                          enumListGen: (Int, Array[Any]) => Gen[util.List[Any]]) {
+                          enumListGen: (Int, Array[Any]) => Gen[util.List[Any]],
+                          strListGen: Int => Gen[util.List[String]]) {
   def generate[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
 
     val runtimeM = runtimeMirror(getClass.getClassLoader)
@@ -67,6 +68,9 @@ class JsonRandomGenerator(strGen: Gen[String],
                 case t if t == classOf[java.util.List[_]] =>
                   val listTypeParam = methodReturnType.typeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass).head
                   listTypeParam match {
+                    case ltp if ltp == classOf[String] =>
+                      invokeMethod(obj, Seq(strListGen(2).sample.get),
+                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
                     case ltp if ltp.isEnum =>
                       val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
                       invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
