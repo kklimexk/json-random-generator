@@ -54,6 +54,12 @@
       "items": {
         "type": "integer"
       }
+    },
+    "doubleArray": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ package generators.`type`
 
 import java.util
 
+import generators.`type`.DoubleTypeGenerators.DefaultDoubleTypeGenerator
 import generators.`type`.EnumTypeGenerators.DefaultEnumTypeGenerator
 import generators.`type`.IntegerTypeGenerators.DefaultIntegerTypeGenerator
 import generators.`type`.StringTypeGenerators.DefaultStringTypeGenerator
@@ -24,5 +25,10 @@ object ListTypeGenerators {
   object DefaultIntegerListTypeGenerator {
     def apply(): Int => Gen[util.List[java.lang.Integer]] = (numOfElem: Int) =>
       Gen.listOfN(numOfElem, DefaultIntegerTypeGenerator()).map(_.asJava)
+  }
+
+  object DefaultDoubleListTypeGenerator {
+    def apply(): Int => Gen[util.List[java.lang.Double]] = (numOfElem: Int) =>
+      Gen.listOfN(numOfElem, DefaultDoubleTypeGenerator()).map(_.asJava)
   }
 }
