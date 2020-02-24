@@ -83,6 +83,16 @@ class JsonRandomGenerator(strGen: Gen[String],
                       val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
                       invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
                         methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+                    case ltp if ltp == classOf[java.util.List[_]] =>
+                      val numOfElemInOuterArr = 2
+                      val outerArr = new util.ArrayList[java.util.List[Any]]()
+
+                      val innerArrays = (1 to numOfElemInOuterArr).map(_ => new util.ArrayList[Any]())
+                      innerArrays.foreach(outerArr.add)
+
+                      invokeMethod(obj, Seq(outerArr),
+                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[java.util.List[_]]]))
+                      innerArrays.foreach(nestedArray => loop(nestedArray, listTypeArg))
                     case _ =>
                       val numOfInstancesToGenerate = 2
                       val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())

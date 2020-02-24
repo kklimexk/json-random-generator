@@ -70,6 +70,15 @@
     "addressArray": {
       "type": "array",
       "items": { "$ref": "#/definitions/address" }
+    },
+    "integerNestedArray": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      }
     }
   }
 }
