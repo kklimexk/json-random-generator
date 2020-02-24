@@ -84,9 +84,8 @@ class JsonRandomGenerator(strGen: Gen[String],
                       invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
                         methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
                     case _ =>
-                      val newInstance1 = Class.forName(listTypeSymbolFullName).newInstance()
-                      val newInstance2 = Class.forName(listTypeSymbolFullName).newInstance()
-                      val instanceList = Seq(newInstance1, newInstance2)
+                      val numOfInstancesToGenerate = 2
+                      val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())
 
                       invokeMethod(obj, Seq(instanceList.asJava),
                         methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
