@@ -60,48 +60,7 @@ class JsonRandomGenerator(strGen: Gen[String],
                   invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
                     methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.util.List[_]] =>
-                  val listTypeArg = methodTypeArgs.head
-                  val listTypeSymbolFullName = resolveTypeSymbolFullName(listTypeArg.typeSymbol.typeSignature)
-                  val listTypeParam = runtimeM.runtimeClass(listTypeArg.typeSymbol.asClass)
-
-                  listTypeParam match {
-                    case ltp if ltp == classOf[Object] =>
-                      //Do nothing
-                    case ltp if ltp == classOf[String] =>
-                      invokeMethod(obj, Seq(strListGen(2).sample.get),
-                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-                    case ltp if ltp == classOf[java.lang.Integer] =>
-                      invokeMethod(obj, Seq(intListGen(2).sample.get),
-                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-                    case ltp if ltp == classOf[java.lang.Double] =>
-                      invokeMethod(obj, Seq(doubleListGen(2).sample.get),
-                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-                    case ltp if ltp == classOf[java.lang.Boolean] =>
-                      invokeMethod(obj, Seq(booleanListGen(2).sample.get),
-                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-                    case ltp if ltp.isEnum =>
-                      val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
-                      invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
-                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-                    case ltp if ltp == classOf[java.util.List[_]] =>
-                      val numOfElemInOuterArr = 2
-                      val outerArr = new util.ArrayList[java.util.List[Any]]()
-
-                      val innerArrays = (1 to numOfElemInOuterArr).map(_ => new util.ArrayList[Any]())
-                      innerArrays.foreach(outerArr.add)
-
-                      invokeMethod(obj, Seq(outerArr),
-                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[java.util.List[_]]]))
-                      innerArrays.foreach(nestedArray => loop(nestedArray, listTypeArg))
-                    case _ =>
-                      val numOfInstancesToGenerate = 2
-                      val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())
-
-                      invokeMethod(obj, Seq(instanceList.asJava),
-                        methodName.toString.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-
-                      instanceList.foreach(ins => loop(ins, listTypeArg))
-                  }
+                  generateLists(methodTypeArgs, runtimeM, obj, methodName.toString, loop, isNested = false)
                 case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[String]) =>
                   val generatedMap = mapGen.sample.get
                   generatedMap.foreach {
@@ -127,6 +86,88 @@ class JsonRandomGenerator(strGen: Gen[String],
     }
 
     loop(topLevelObj, c.tpe)
+  }
+
+  private def generateLists[A](methodTypeArgs: List[Type], runtimeM: Mirror, obj: Any,
+                               methodName: String, loop: (Any, Type) => A, isNested: Boolean): Unit = {
+
+    val listTypeArg = methodTypeArgs.head
+    val listTypeSymbolFullName = resolveTypeSymbolFullName(listTypeArg.typeSymbol.typeSignature)
+    val listTypeParam = runtimeM.runtimeClass(listTypeArg.typeSymbol.asClass)
+
+    if (isNested) {
+      listTypeParam match {
+        case ltp if ltp == classOf[Object] =>
+        //Do nothing
+        case ltp if ltp == classOf[String] =>
+          obj.asInstanceOf[java.util.List[String]].addAll(strListGen(2).sample.get)
+        case ltp if ltp == classOf[java.lang.Integer] =>
+          obj.asInstanceOf[java.util.List[java.lang.Integer]].addAll(intListGen(2).sample.get)
+        case ltp if ltp == classOf[java.lang.Double] =>
+          obj.asInstanceOf[java.util.List[java.lang.Double]].addAll(doubleListGen(2).sample.get)
+        case ltp if ltp == classOf[java.lang.Boolean] =>
+          obj.asInstanceOf[java.util.List[java.lang.Boolean]].addAll(booleanListGen(2).sample.get)
+        case ltp if ltp.isEnum =>
+          val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
+          obj.asInstanceOf[java.util.List[Any]].addAll(enumListGen(2, enumValues).sample.get)
+        case ltp if ltp == classOf[java.util.List[_]] =>
+          val numOfElemInOuterArr = 2
+          val outerArr = new util.ArrayList[java.util.List[Any]]()
+
+          val innerArrays = (1 to numOfElemInOuterArr).map(_ => new util.ArrayList[Any]())
+          innerArrays.foreach(outerArr.add)
+
+          obj.asInstanceOf[java.util.List[java.util.List[Any]]].addAll(outerArr)
+
+          innerArrays.foreach(nestedArray => generateLists(listTypeArg.typeArgs, runtimeM, nestedArray, methodName, loop, isNested = true))
+        case _ =>
+          val numOfInstancesToGenerate = 2
+          val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())
+
+          obj.asInstanceOf[java.util.List[Any]].addAll(instanceList.asJava)
+
+          instanceList.foreach(ins => loop(ins, listTypeArg))
+      }
+    } else {
+      listTypeParam match {
+        case ltp if ltp == classOf[Object] =>
+        //Do nothing
+        case ltp if ltp == classOf[String] =>
+          invokeMethod(obj, Seq(strListGen(2).sample.get),
+            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+        case ltp if ltp == classOf[java.lang.Integer] =>
+          invokeMethod(obj, Seq(intListGen(2).sample.get),
+            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+        case ltp if ltp == classOf[java.lang.Double] =>
+          invokeMethod(obj, Seq(doubleListGen(2).sample.get),
+            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+        case ltp if ltp == classOf[java.lang.Boolean] =>
+          invokeMethod(obj, Seq(booleanListGen(2).sample.get),
+            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+        case ltp if ltp.isEnum =>
+          val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
+          invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
+            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+        case ltp if ltp == classOf[java.util.List[_]] =>
+          val numOfElemInOuterArr = 2
+          val outerArr = new util.ArrayList[java.util.List[Any]]()
+
+          val innerArrays = (1 to numOfElemInOuterArr).map(_ => new util.ArrayList[Any]())
+          innerArrays.foreach(outerArr.add)
+
+          invokeMethod(obj, Seq(outerArr),
+            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[java.util.List[_]]]))
+          innerArrays.foreach(nestedArray => generateLists(listTypeArg.typeArgs, runtimeM, nestedArray, methodName, loop, isNested = true))
+        case _ =>
+          val numOfInstancesToGenerate = 2
+          val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())
+
+          invokeMethod(obj, Seq(instanceList.asJava),
+            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+
+          instanceList.foreach(ins => loop(ins, listTypeArg))
+      }
+    }
   }
 
   private def getEnumValues[E](enumClass: Class[E]): Array[E] = {
