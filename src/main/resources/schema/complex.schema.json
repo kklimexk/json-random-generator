@@ -79,6 +79,16 @@
           "type": "integer"
         }
       }
+    },
+    "addressNestedArray": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/address" }
+        }
+      }
     }
   }
 }
