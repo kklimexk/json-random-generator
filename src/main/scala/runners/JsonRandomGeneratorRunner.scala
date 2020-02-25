@@ -10,7 +10,16 @@ import scala.reflect.runtime.universe._
 private[runners] trait JsonRandomGeneratorRunner {
   val jsonRandomGenerator: JsonRandomGenerator
 
-  def run[A](topLevelObj: A, numOfRecords: Int)(implicit c: TypeTag[A]): Seq[A] = {
+  def generate[A](topLevelObj: A, numOfRecords: Int)(implicit c: TypeTag[A]): Seq[A] = {
+    (1 to numOfRecords).map { _ =>
+      val jsonObj = jsonRandomGenerator.generate(topLevelObj)
+      println(jsonObj)
+
+      jsonObj
+    }
+  }
+
+  def save(objects: Seq[_]): Unit = {
 
     def init(clazzName: String): SequenceWriter = {
       val file = new File(s"target/$clazzName.json")
@@ -20,17 +29,10 @@ private[runners] trait JsonRandomGeneratorRunner {
       seqWriter
     }
 
-    val seqWriter = init(topLevelObj.getClass.getSimpleName)
+    val seqWriter = init(objects.head.getClass.getSimpleName)
 
-    val res = (1 to numOfRecords).map { _ =>
-      val jsonObj = jsonRandomGenerator.generate(topLevelObj)
-      println(jsonObj)
-
-      seqWriter.write(jsonObj)
-      jsonObj
-    }
+    objects.foreach(seqWriter.write)
 
     seqWriter.close()
-    res
   }
 }
