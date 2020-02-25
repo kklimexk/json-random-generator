@@ -18,6 +18,8 @@ object Main {
     val jsonRandomGeneratorRunner = new DefaultJsonRandomGeneratorRunner()
     val generatedObjects = jsonRandomGeneratorRunner.generate(clazz.newInstance(), numOfRecords)(type2TypeTag(mirror, typeSignature))
 
-    generatedObjects.save()
+    val res = new Generators().generators().foldLeft(generatedObjects.asInstanceOf[Seq[Generators.ResultType]])((el, transformation) => transformation(el))
+
+    res.save()
   }
 }
