@@ -1,6 +1,7 @@
 import runners.DefaultJsonRandomGeneratorRunner
 import utils.JsonUtils.Implicits._
 import utils.ReflectionUtils._
+import utils.TimeUtils
 
 import scala.reflect.runtime.universe._
 
@@ -13,10 +14,12 @@ object Main {
     val typeSignature = symbol.typeSignature
 
     val jsonRandomGeneratorRunner = new DefaultJsonRandomGeneratorRunner()
-    val generatedObjects = jsonRandomGeneratorRunner.generate(clazz, Config.numOfRecords)(type2TypeTag(mirror, typeSignature))
+    TimeUtils.time {
+      val generatedObjects = jsonRandomGeneratorRunner.generate(clazz, Config.numOfRecords)(type2TypeTag(mirror, typeSignature))
 
-    val res = Config.generators().foldLeft(generatedObjects.asInstanceOf[Seq[Config.ResultType]])((el, transformation) => transformation(el))
+      val res = Config.generators().foldLeft(generatedObjects.asInstanceOf[Seq[Config.ResultType]])((el, transformation) => transformation(el))
 
-    res.save()
+      res.save()
+    }
   }
 }
