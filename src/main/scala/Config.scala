@@ -1,11 +1,12 @@
-import Generators.ResultType
 import custom.Mapping
 import output.ComplexSchema
 
-class Generators {
-  type Mapping = Seq[ResultType] => Seq[ResultType]
+object Config {
+  type ResultType = ComplexSchema
 
-  def generators(): Seq[Mapping] = Seq(
+  def numOfRecords = 10
+
+  def generators(): Seq[Seq[ResultType] => Seq[ResultType]] = Seq(
     objects => Mapping(objects) { rows =>
       rows.map { r =>
         r.setStringField("String Field!!!")
@@ -13,8 +14,4 @@ class Generators {
       }
     }
   )
-}
-
-object Generators {
-  type ResultType = ComplexSchema
 }

@@ -34,7 +34,7 @@ class JsonRandomGenerator(strGen: Gen[String],
 
           if (methodFullName.startsWith("output") &&
             methodFullName.contains("get")) {
-            println(s"$methodName, $methodReturnType")
+            //println(s"$methodName, $methodReturnType")
 
             val returnTypeSymbolFullName = resolveTypeSymbolFullName(methodReturnType)
 

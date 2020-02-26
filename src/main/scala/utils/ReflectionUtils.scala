@@ -1,6 +1,6 @@
 package utils
 
-import scala.reflect.api
+import scala.reflect.{ClassTag, api}
 import scala.reflect.runtime.universe._
 
 object ReflectionUtils {
@@ -24,4 +24,6 @@ object ReflectionUtils {
   }
 
   def annotationTypeName(annotation: Annotation): String = annotation.tree.tpe.typeSymbol.name.toString
+
+  def createInstanceFromType[T](implicit tag: ClassTag[T]): T = tag.runtimeClass.newInstance().asInstanceOf[T]
 }
