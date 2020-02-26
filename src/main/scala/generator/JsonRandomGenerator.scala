@@ -41,8 +41,7 @@ class JsonRandomGenerator(strGen: Gen[String],
             try {
               Class.forName(returnTypeSymbolFullName) match {
                 case t if t == classOf[Object] =>
-                  invokeMethod(obj, Seq(null),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
+                  //Do nothing
                 case t if t == classOf[String] =>
                   invokeMethod(obj, Seq(strGen.sample.get),
                     methodName.toString.replaceFirst("g", "s"), Seq(t))

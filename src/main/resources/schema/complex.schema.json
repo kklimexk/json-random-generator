@@ -21,6 +21,18 @@
         "type": "string",
         "enum": ["one", "two", "three"]
       }
+    },
+    "person": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "lastname": { "type": "string" },
+        "addresses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/address" }
+        }
+      }
     }
   },
 
@@ -89,6 +101,7 @@
           "items": { "$ref": "#/definitions/address" }
         }
       }
-    }
+    },
+    "person":  { "$ref": "#/definitions/person" }
   }
 }

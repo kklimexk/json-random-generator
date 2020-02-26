@@ -10,9 +10,9 @@ import scala.reflect.runtime.universe._
 private[runners] trait JsonRandomGeneratorRunner {
   val jsonRandomGenerator: JsonRandomGenerator
 
-  def generate[A](topLevelObj: A, numOfRecords: Int)(implicit c: TypeTag[A]): Seq[A] = {
+  def generate[A](topLevelObj: Class[A], numOfRecords: Int)(implicit c: TypeTag[A]): Seq[A] = {
     (1 to numOfRecords).map { _ =>
-      val jsonObj = jsonRandomGenerator.generate(topLevelObj)
+      val jsonObj = jsonRandomGenerator.generate(topLevelObj.newInstance())
       println(jsonObj)
 
       jsonObj

@@ -13,7 +13,7 @@ object Main {
     val typeSignature = symbol.typeSignature
 
     val jsonRandomGeneratorRunner = new DefaultJsonRandomGeneratorRunner()
-    val generatedObjects = jsonRandomGeneratorRunner.generate(clazz.newInstance(), Config.numOfRecords)(type2TypeTag(mirror, typeSignature))
+    val generatedObjects = jsonRandomGeneratorRunner.generate(clazz, Config.numOfRecords)(type2TypeTag(mirror, typeSignature))
 
     val res = Config.generators().foldLeft(generatedObjects.asInstanceOf[Seq[Config.ResultType]])((el, transformation) => transformation(el))
 
