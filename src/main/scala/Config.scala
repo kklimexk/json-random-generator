@@ -3,11 +3,11 @@ import org.scalacheck.Gen
 import output.ComplexSchema
 
 object Config {
-  type ResultType = ComplexSchema
+  type SchemaType = ComplexSchema
 
   def numOfRecords = 10
 
-  def generators(): Seq[Seq[ResultType] => Seq[ResultType]] = Seq(
+  def generators(): Seq[Seq[SchemaType] => Seq[SchemaType]] = Seq(
     objects => Mapping(objects) { rows =>
       rows.zipWithIndex.map { case (r, idx) =>
         r.getPerson.setId(idx)

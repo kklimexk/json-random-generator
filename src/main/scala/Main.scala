@@ -7,7 +7,7 @@ import scala.reflect.runtime.universe._
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val clazz = createInstanceFromType[Config.ResultType].getClass
+    val clazz = createInstanceFromType[Config.SchemaType].getClass
     val mirror = runtimeMirror(clazz.getClassLoader)
 
     val symbol = mirror.classSymbol(clazz)
@@ -17,7 +17,7 @@ object Main {
     TimeUtils.time {
       val generatedObjects = jsonRandomGeneratorRunner.generate(clazz, Config.numOfRecords)(type2TypeTag(mirror, typeSignature))
 
-      val res = Config.generators().foldLeft(generatedObjects.asInstanceOf[Seq[Config.ResultType]])((el, transformation) => transformation(el))
+      val res = Config.generators().foldLeft(generatedObjects.asInstanceOf[Seq[Config.SchemaType]])((el, transformation) => transformation(el))
 
       res.save()
     }
