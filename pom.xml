@@ -91,6 +91,8 @@
                 <configuration>
                     <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
                     <targetPackage>output</targetPackage>
+                    <formatDates>true</formatDates>
+                    <formatDateTimes>true</formatDateTimes>
                 </configuration>
                 <executions>
                     <execution>

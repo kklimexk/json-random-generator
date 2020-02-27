@@ -102,6 +102,18 @@
         }
       }
     },
-    "person":  { "$ref": "#/definitions/person" }
+    "person":  { "$ref": "#/definitions/person" },
+    "createdDateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "deletedTime": {
+      "type": "string",
+      "format": "time"
+    }
   }
 }
