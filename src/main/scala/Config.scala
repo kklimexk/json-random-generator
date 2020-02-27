@@ -11,8 +11,8 @@ object Config {
   def generators(): Seq[Seq[SchemaType] => Seq[SchemaType]] = Seq(
     objects => Mapping(objects) { rows =>
       rows.zipWithIndex.map { case (r, idx) =>
-        r.setUpdatedDate(DateTimeUtils.date2Date(r.getCreatedDateTime))
-        r.setDeletedTime(DateTimeUtils.date2Time(r.getCreatedDateTime))
+        r.setCreatedDate(DateTimeUtils.date2Date(r.getCreatedDateTime))
+        r.setCreatedTime(DateTimeUtils.date2Time(r.getCreatedDateTime))
 
         r.getPerson.setId(idx)
         r.getPerson.setName(Gen.oneOf("Gabriel", "Alicja", "Rafal", "Vova", "Milton", "Pawel").sample.get)
