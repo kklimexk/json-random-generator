@@ -15,7 +15,7 @@ object Config {
     objects => Mapping(objects) { rows =>
       rows.zipWithIndex.map { case (r, idx) =>
         r.setCreatedDateTime(
-          DateTypeGenerators.betweenRange(new Date(1581809593000L), new Date(1582809593000L)).sample.get
+          DateTypeGenerators.between(new Date(1581809593000L), new Date(1582809593000L)).sample.get
         )
         r.setCreatedDate(DateTimeUtils.date2Date(r.getCreatedDateTime))
         r.setCreatedTime(DateTimeUtils.date2Time(r.getCreatedDateTime))

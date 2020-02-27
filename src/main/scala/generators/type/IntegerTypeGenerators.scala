@@ -3,5 +3,6 @@ package generators.`type`
 import org.scalacheck.Gen
 
 object IntegerTypeGenerators {
-  def default: Gen[java.lang.Integer] = Gen.choose(1,100).map(i => new Integer(i))
+  def between: (Int, Int) => Gen[java.lang.Integer] = (from: Int, to: Int) =>
+    Gen.choose(from, to).map(i => new Integer(i))
 }

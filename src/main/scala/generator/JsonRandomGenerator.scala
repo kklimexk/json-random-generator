@@ -16,8 +16,8 @@ class JsonRandomGenerator(strGen: Gen[String],
                           mapGen: Gen[Map[String, String]],
                           enumListGen: (Int, Array[Any]) => Gen[util.List[Any]],
                           strListGen: Int => Gen[util.List[String]],
-                          intListGen: Int => Gen[util.List[java.lang.Integer]],
-                          doubleListGen: Int => Gen[util.List[java.lang.Double]],
+                          intListGen: Gen[util.List[java.lang.Integer]],
+                          doubleListGen: Gen[util.List[java.lang.Double]],
                           booleanListGen: Int => Gen[util.List[java.lang.Boolean]]) {
   def generate[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
 
@@ -101,9 +101,9 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[String] =>
           obj.asInstanceOf[java.util.List[String]].addAll(strListGen(2).sample.get)
         case ltp if ltp == classOf[java.lang.Integer] =>
-          obj.asInstanceOf[java.util.List[java.lang.Integer]].addAll(intListGen(2).sample.get)
+          obj.asInstanceOf[java.util.List[java.lang.Integer]].addAll(intListGen.sample.get)
         case ltp if ltp == classOf[java.lang.Double] =>
-          obj.asInstanceOf[java.util.List[java.lang.Double]].addAll(doubleListGen(2).sample.get)
+          obj.asInstanceOf[java.util.List[java.lang.Double]].addAll(doubleListGen.sample.get)
         case ltp if ltp == classOf[java.lang.Boolean] =>
           obj.asInstanceOf[java.util.List[java.lang.Boolean]].addAll(booleanListGen(2).sample.get)
         case ltp if ltp.isEnum =>
@@ -135,10 +135,10 @@ class JsonRandomGenerator(strGen: Gen[String],
           invokeMethod(obj, Seq(strListGen(2).sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Integer] =>
-          invokeMethod(obj, Seq(intListGen(2).sample.get),
+          invokeMethod(obj, Seq(intListGen.sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Double] =>
-          invokeMethod(obj, Seq(doubleListGen(2).sample.get),
+          invokeMethod(obj, Seq(doubleListGen.sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Boolean] =>
           invokeMethod(obj, Seq(booleanListGen(2).sample.get),
