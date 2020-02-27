@@ -15,10 +15,10 @@ class JsonRandomGenerator(strGen: Gen[String],
                           enumGen: Array[Any] => Gen[Any],
                           mapGen: Gen[Map[String, String]],
                           enumListGen: (Int, Array[Any]) => Gen[util.List[Any]],
-                          strListGen: Int => Gen[util.List[String]],
+                          strListGen: Gen[util.List[String]],
                           intListGen: Gen[util.List[java.lang.Integer]],
                           doubleListGen: Gen[util.List[java.lang.Double]],
-                          booleanListGen: Int => Gen[util.List[java.lang.Boolean]]) {
+                          booleanListGen: Gen[util.List[java.lang.Boolean]]) {
   def generate[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
 
     val runtimeM = runtimeMirror(getClass.getClassLoader)
@@ -99,13 +99,13 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[Object] =>
         //Do nothing
         case ltp if ltp == classOf[String] =>
-          obj.asInstanceOf[java.util.List[String]].addAll(strListGen(2).sample.get)
+          obj.asInstanceOf[java.util.List[String]].addAll(strListGen.sample.get)
         case ltp if ltp == classOf[java.lang.Integer] =>
           obj.asInstanceOf[java.util.List[java.lang.Integer]].addAll(intListGen.sample.get)
         case ltp if ltp == classOf[java.lang.Double] =>
           obj.asInstanceOf[java.util.List[java.lang.Double]].addAll(doubleListGen.sample.get)
         case ltp if ltp == classOf[java.lang.Boolean] =>
-          obj.asInstanceOf[java.util.List[java.lang.Boolean]].addAll(booleanListGen(2).sample.get)
+          obj.asInstanceOf[java.util.List[java.lang.Boolean]].addAll(booleanListGen.sample.get)
         case ltp if ltp.isEnum =>
           val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
           obj.asInstanceOf[java.util.List[Any]].addAll(enumListGen(2, enumValues).sample.get)
@@ -132,7 +132,7 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[Object] =>
         //Do nothing
         case ltp if ltp == classOf[String] =>
-          invokeMethod(obj, Seq(strListGen(2).sample.get),
+          invokeMethod(obj, Seq(strListGen.sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Integer] =>
           invokeMethod(obj, Seq(intListGen.sample.get),
@@ -141,7 +141,7 @@ class JsonRandomGenerator(strGen: Gen[String],
           invokeMethod(obj, Seq(doubleListGen.sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Boolean] =>
-          invokeMethod(obj, Seq(booleanListGen(2).sample.get),
+          invokeMethod(obj, Seq(booleanListGen.sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
         case ltp if ltp.isEnum =>
           val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
