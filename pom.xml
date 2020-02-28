@@ -93,6 +93,7 @@
                     <targetPackage>output</targetPackage>
                     <formatDates>true</formatDates>
                     <formatDateTimes>true</formatDateTimes>
+                    <useBigDecimals>true</useBigDecimals>
                 </configuration>
                 <executions>
                     <execution>
