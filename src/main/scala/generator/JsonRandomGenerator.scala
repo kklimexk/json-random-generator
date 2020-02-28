@@ -9,14 +9,14 @@ import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe._
 
 class JsonRandomGenerator(strGen: Gen[String],
-                          intGen: Gen[java.lang.Integer],
+                          longGen: Gen[java.lang.Long],
                           bigDecimalGen: Gen[java.math.BigDecimal],
                           booleanGen: Gen[java.lang.Boolean],
                           enumGen: Array[Any] => Gen[Any],
                           mapGen: Gen[Map[String, String]],
                           enumListGen: (Int, Array[Any]) => Gen[util.List[Any]],
                           strListGen: Gen[util.List[String]],
-                          intListGen: Gen[util.List[java.lang.Integer]],
+                          longListGen: Gen[util.List[java.lang.Long]],
                           bigDecimalListGen: Gen[util.List[java.math.BigDecimal]],
                           booleanListGen: Gen[util.List[java.lang.Boolean]]) {
   def generate[A](topLevelObj: A)(implicit c: TypeTag[A]): A = {
@@ -45,8 +45,8 @@ class JsonRandomGenerator(strGen: Gen[String],
                 case t if t == classOf[String] =>
                   invokeMethod(obj, Seq(strGen.sample.get),
                     methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t == classOf[java.lang.Integer] =>
-                  invokeMethod(obj, Seq(intGen.sample.get),
+                case t if t == classOf[java.lang.Long] =>
+                  invokeMethod(obj, Seq(longGen.sample.get),
                     methodName.toString.replaceFirst("g", "s"), Seq(t))
                 case t if t == classOf[java.math.BigDecimal] =>
                   invokeMethod(obj, Seq(bigDecimalGen.sample.get),
@@ -100,8 +100,8 @@ class JsonRandomGenerator(strGen: Gen[String],
         //Do nothing
         case ltp if ltp == classOf[String] =>
           obj.asInstanceOf[java.util.List[String]].addAll(strListGen.sample.get)
-        case ltp if ltp == classOf[java.lang.Integer] =>
-          obj.asInstanceOf[java.util.List[java.lang.Integer]].addAll(intListGen.sample.get)
+        case ltp if ltp == classOf[java.lang.Long] =>
+          obj.asInstanceOf[java.util.List[java.lang.Long]].addAll(longListGen.sample.get)
         case ltp if ltp == classOf[java.math.BigDecimal] =>
           obj.asInstanceOf[java.util.List[java.math.BigDecimal]].addAll(bigDecimalListGen.sample.get)
         case ltp if ltp == classOf[java.lang.Boolean] =>
@@ -134,8 +134,8 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[String] =>
           invokeMethod(obj, Seq(strListGen.sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
-        case ltp if ltp == classOf[java.lang.Integer] =>
-          invokeMethod(obj, Seq(intListGen.sample.get),
+        case ltp if ltp == classOf[java.lang.Long] =>
+          invokeMethod(obj, Seq(longListGen.sample.get),
             methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.math.BigDecimal] =>
           invokeMethod(obj, Seq(bigDecimalListGen.sample.get),

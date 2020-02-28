@@ -22,7 +22,7 @@ object Config {
 
         r.getBillingAddress.setFlatNo(BigDecimalTypeGenerators.between(1000, 10000, 7, 2).sample.get)
 
-        r.getPerson.setId(idx)
+        r.getPerson.setId(idx.toLong)
         r.getPerson.setName(Gen.oneOf("Gabriel", "Alicja", "Rafal", "Vova", "Milton", "Pawel").sample.get)
         r.getPerson.setLastname(Gen.oneOf("Kowalski", "Smith", "Brown", "Wilson", "Miller", "Johnson").sample.get)
       }
