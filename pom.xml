@@ -93,6 +93,13 @@
                     <targetPackage>output</targetPackage>
                     <formatDates>true</formatDates>
                     <formatDateTimes>true</formatDateTimes>
+                    <generateBuilders>false</generateBuilders>
+                    <includeJsr305Annotations>true</includeJsr305Annotations>
+                    <includeToString>false</includeToString>
+                    <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+                    <useLongIntegers>true</useLongIntegers>
+                    <initializeCollections>false</initializeCollections>
+                    <useBigDecimals>true</useBigDecimals>
                 </configuration>
                 <executions>
                     <execution>
