@@ -31,18 +31,17 @@ object Config {
 
 ## Supported Types
 
-|   Schema type        |      Java type                                         |
-|----------------------|--------------------------------------------------------|
-| `string`             | `java.lang.String`                                     |
-| `integer`            | `java.lang.Long`                                       |
-| `number`             | `java.math.BigDecimal`                                 |
-| `boolean`            | `java.lang.Boolean`                                    |
-| `null`               | `java.lang.Object`                                     |
-| `enum`               | *generated Java enum*                                  |
-| `object`             | *generated Java type*                                  |
-| `map<string,string>` | `java.util.Map<String,String>`                         |
-| `array`              | `java.util.List<String | Integer etc.>`                |
-| `array<enum>`        | `java.util.List<EnumType>`                             |
-| `array<object>`      | `java.util.List<JavaType>`                             |
-| nested `array`       | `java.util.List<java.util.List<Type or another List>>` |
-| `date-time`          | `java.util.Date`                                       |
+|   Schema type        |      Java type                                             |
+|----------------------|------------------------------------------------------------|
+| `string`             | `java.lang.String`                                         |
+| `integer`            | `java.lang.Long`                                           |
+| `number`             | `java.math.BigDecimal`                                     |
+| `boolean`            | `java.lang.Boolean`                                        |
+| `null`               | `java.lang.Object`                                         |
+| `enum`               | *generated Java enum*                                      |
+| `object`             | *generated Java type*                                      |
+| `map<string,string>` | `java.util.Map<String,String>`                             |
+| `array`              | `java.util.List<String or Integer or JavaType etc.>`       |
+| `array<enum>`        | `java.util.List<EnumType>`                                 |
+| *nested* `array`     | `java.util.List<java.util.List<JavaType or another List>>` |
+| `date-time`          | `java.util.Date`                                           |
