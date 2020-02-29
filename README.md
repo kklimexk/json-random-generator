@@ -30,3 +30,12 @@ object Config {
 ```
 
 ## Supported Types
+
+|   Schema type   |      Java type         |
+|-----------------|------------------------|
+| `string`        | `java.lang.String`     |
+| `integer`       | `java.lang.Long`       |
+| `number`        | `java.math.BigDecimal` |
+| `boolean`       | `java.lang.Boolean`    |
+| `null`          | `java.lang.Object`     |
+| `enum`          | *generated Java enum*  |
