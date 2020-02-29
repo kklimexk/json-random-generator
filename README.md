@@ -19,7 +19,7 @@ Json random generator is a tool to produce data from json schema automatically, 
 
 object Config {
 
-  type SchemaType = /* YOUR SCHEMA TYPE HERE */
+  type SchemaType = /* YOUR SCHEMA TYPE HERE (generated POJO type) */
 
   def numOfRecords = 10
 
