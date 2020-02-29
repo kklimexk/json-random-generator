@@ -44,4 +44,6 @@ object Config {
 | `array`              | `java.util.List<String or Integer or JavaType etc.>`       |
 | `array<enum>`        | `java.util.List<EnumType>`                                 |
 | *nested* `array`     | `java.util.List<java.util.List<JavaType or another List>>` |
-| `date-time`          | `java.util.Date`                                           |
+| `date-time`          | `java.util.Date` in *ISO 8601* format                      |
+| `date`               | `java.lang.String`                                         |
+| `time`               | `java.lang.String`                                         |
