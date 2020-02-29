@@ -6,4 +6,9 @@ Json random generator is a tool to produce data from json schema automatically. 
 
 ## Getting started
 
+1. Place your schema in: **src/main/resources/schema**.
+2. Run `mvn generate-sources` to obtain object oriented representation of your json schema. Generated POJOs will be placed in **target** directory.
+3. Run `Main.scala`. Generated json will be in **target** directory.
+4. (Optional) If you are not pleased with default generated values in json, you can always overwrite it, using `Config.scala` file.
+
 ## Supported Types
