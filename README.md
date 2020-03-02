@@ -9,7 +9,7 @@ Json random generator is a tool to produce data from json schema automatically, 
 1. Place your schema in: **src/main/resources/schema**.
 2. Run `mvn generate-sources` to obtain object oriented representation of your json schema. Generated POJOs will be placed in **target** directory.
 3. Set *SchemaType* in `Config.scala` to POJO type that you are interested in.
-4. Set *numOfRecords* in `Config.scala`
+4. Set *numOfRecords* in `Config.scala`.
 5. Run `Main.scala`. Generated json will be in **target** directory.
 6. (Optional) If you are not pleased with default generated values in json, you can always overwrite it, using *generators()* method in `Config.scala` file and run `Main.scala` again.
 
@@ -25,6 +25,29 @@ object Config {
 
   def generators(): Seq[Seq[SchemaType] => Seq[SchemaType]] = Seq(
     //You can define here additional rules for specific fields
+    //Example:
+    objects => Mapping(objects) { rows =>
+      rows.zipWithIndex.map { case (r, idx) =>
+        //set date-time between range of dates
+        r.setCreatedDateTime(
+          DateTypeGenerators.between(new Date(1581809593000L), new Date(1582809593000L)).sample.get
+        )
+        //set date the same as createdDateTime
+        r.setCreatedDate(DateTimeUtils.date2Date(r.getCreatedDateTime))
+        //set time the same as createdDateTime
+        r.setCreatedTime(DateTimeUtils.date2Time(r.getCreatedDateTime))
+
+        //set flatNo between 1000 and 10000 with precision 7 and scale 2
+        r.getBillingAddress.setFlatNo(BigDecimalTypeGenerators.between(1000, 10000, 7, 2).sample.get)
+
+        //set id of the user with increasing number
+        r.getPerson.setId(idx.toLong)
+        //set name using generator
+        r.getPerson.setName(Gen.oneOf("Gabriel", "Alicja", "Rafal", "Vova", "Milton", "Pawel").sample.get)
+        //set lastname using generator
+        r.getPerson.setLastname(Gen.oneOf("Kowalski", "Smith", "Brown", "Wilson", "Miller", "Johnson").sample.get)
+      }
+    }
   )
 }
 ```
