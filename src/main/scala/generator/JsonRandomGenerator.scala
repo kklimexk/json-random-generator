@@ -24,60 +24,57 @@ class JsonRandomGenerator(strGen: Gen[String],
     val runtimeM = runtimeMirror(getClass.getClassLoader)
 
     def loop(obj: Any, tp: Type): A = {
-      val members = tp.decls.filter(_.isPublic)
+      val members = tp.decls.filter(_.isPrivate)
       members.foreach { m =>
-        if (m.isMethod) {
-          val methodFullName = m.asMethod.fullName
-          val methodName = m.asMethod.name
-          val methodReturnType = m.asMethod.returnType
-          val methodTypeArgs = methodReturnType.typeArgs
+        val methodFullName = m.asTerm.fullName
+        val methodName = m.asTerm.name
+        val methodReturnType = m.asTerm.typeSignature
+        val methodTypeArgs = methodReturnType.typeArgs
 
-          if (methodFullName.startsWith("output") &&
-            methodFullName.contains("get")) {
-            //println(s"$methodName, $methodReturnType")
+        if (methodFullName.startsWith("output")) {
+          //println(s"$methodName, $methodReturnType")
 
-            val returnTypeSymbolFullName = resolveTypeSymbolFullName(methodReturnType)
+          val returnTypeSymbolFullName = resolveTypeSymbolFullName(methodReturnType)
 
-            try {
-              Class.forName(returnTypeSymbolFullName) match {
-                case t if t == classOf[Object] =>
-                  //Do nothing
-                case t if t == classOf[String] =>
-                  invokeMethod(obj, Seq(strGen.sample.get),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t == classOf[java.lang.Long] =>
-                  invokeMethod(obj, Seq(longGen.sample.get),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t == classOf[java.math.BigDecimal] =>
-                  invokeMethod(obj, Seq(bigDecimalGen.sample.get),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t == classOf[java.lang.Boolean] =>
-                  invokeMethod(obj, Seq(booleanGen.sample.get),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t.isEnum =>
-                  val enumValues = getEnumValues(t.asInstanceOf[Class[Any]])
-                  invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
-                case t if t == classOf[java.util.List[_]] =>
-                  generateLists(methodTypeArgs, runtimeM, obj, methodName.toString, loop, isNested = false)
-                case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[String]) =>
-                  val generatedMap = mapGen.sample.get
-                  generatedMap.foreach {
-                    case (k, v) => invokeMethod(obj, Seq(k, v),
-                      "setAdditionalProperty", Seq(classOf[String], classOf[String]))
-                  }
-                case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[Object]) =>
-                  //Do nothing
-                case t =>
-                  val newInstance = Class.forName(returnTypeSymbolFullName).newInstance()
-                  invokeMethod(obj, Seq(newInstance.asInstanceOf[AnyRef]),
-                    methodName.toString.replaceFirst("g", "s"), Seq(t))
-                  loop(newInstance, methodReturnType)
-                //loop(mirror.reflect(methodReturnType).instance, methodReturnType)
-              }
-            } catch {
-              case e: ClassNotFoundException => e.printStackTrace()
+          try {
+            Class.forName(returnTypeSymbolFullName) match {
+              case t if t == classOf[Object] =>
+              //Do nothing
+              case t if t == classOf[String] =>
+                invokeMethod(obj, Seq(strGen.sample.get),
+                  s"set${methodName.toString.capitalize}", Seq(t))
+              case t if t == classOf[java.lang.Long] =>
+                invokeMethod(obj, Seq(longGen.sample.get),
+                  s"set${methodName.toString.capitalize}", Seq(t))
+              case t if t == classOf[java.math.BigDecimal] =>
+                invokeMethod(obj, Seq(bigDecimalGen.sample.get),
+                  s"set${methodName.toString.capitalize}", Seq(t))
+              case t if t == classOf[java.lang.Boolean] =>
+                invokeMethod(obj, Seq(booleanGen.sample.get),
+                  s"set${methodName.toString.capitalize}", Seq(t))
+              case t if t.isEnum =>
+                val enumValues = getEnumValues(t.asInstanceOf[Class[Any]])
+                invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
+                  s"set${methodName.toString.capitalize}", Seq(t))
+              case t if t == classOf[java.util.List[_]] =>
+                generateLists(methodTypeArgs, runtimeM, obj, methodName.toString, loop, isNested = false)
+              case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[String]) =>
+                val generatedMap = mapGen.sample.get
+                generatedMap.foreach {
+                  case (k, v) => invokeMethod(obj, Seq(k, v),
+                    "setAdditionalProperty", Seq(classOf[String], classOf[String]))
+                }
+              case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[Object]) =>
+              //Do nothing
+              case t =>
+                val newInstance = Class.forName(returnTypeSymbolFullName).newInstance()
+                invokeMethod(obj, Seq(newInstance.asInstanceOf[AnyRef]),
+                  s"set${methodName.toString.capitalize}", Seq(t))
+                loop(newInstance, methodReturnType)
+              //loop(mirror.reflect(methodReturnType).instance, methodReturnType)
             }
+          } catch {
+            case e: ClassNotFoundException => e.printStackTrace()
           }
         }
       }
@@ -133,20 +130,20 @@ class JsonRandomGenerator(strGen: Gen[String],
         //Do nothing
         case ltp if ltp == classOf[String] =>
           invokeMethod(obj, Seq(strListGen.sample.get),
-            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Long] =>
           invokeMethod(obj, Seq(longListGen.sample.get),
-            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.math.BigDecimal] =>
           invokeMethod(obj, Seq(bigDecimalListGen.sample.get),
-            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Boolean] =>
           invokeMethod(obj, Seq(booleanListGen.sample.get),
-            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp.isEnum =>
           val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
           invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
-            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.util.List[_]] =>
           val numOfElemInOuterArr = 2
           val outerArr = new util.ArrayList[java.util.List[Any]]()
@@ -155,14 +152,14 @@ class JsonRandomGenerator(strGen: Gen[String],
           innerArrays.foreach(outerArr.add)
 
           invokeMethod(obj, Seq(outerArr),
-            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[java.util.List[_]]]))
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[java.util.List[_]]]))
           innerArrays.foreach(nestedArray => generateLists(listTypeArg.typeArgs, runtimeM, nestedArray, methodName, loop, isNested = true))
         case _ =>
           val numOfInstancesToGenerate = 2
           val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())
 
           invokeMethod(obj, Seq(instanceList.asJava),
-            methodName.replaceFirst("g", "s"), Seq(classOf[java.util.List[_]]))
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
 
           instanceList.foreach(ins => loop(ins, listTypeArg))
       }
