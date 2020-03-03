@@ -11,7 +11,7 @@ object Config {
 
   def numOfRecords = 10
 
-  def generators(): Seq[Seq[SchemaType] => Seq[SchemaType]] = Seq(
+  def customRules: Seq[SchemaType] => Seq[SchemaType] =
     objects => Mapping(objects) { rows =>
       rows.zipWithIndex.map { case (r, idx) =>
         r.setCreatedDateTime(
@@ -27,5 +27,4 @@ object Config {
         r.getPerson.setLastname(Gen.oneOf("Kowalski", "Smith", "Brown", "Wilson", "Miller", "Johnson").sample.get)
       }
     }
-  )
 }

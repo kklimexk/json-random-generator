@@ -17,7 +17,7 @@ object Main {
     executionTime {
       val generatedObjects = jsonRandomGeneratorRunner.generate(clazz, Config.numOfRecords)(type2TypeTag(mirror, typeSignature))
 
-      val res = Config.generators().foldLeft(generatedObjects.asInstanceOf[Seq[Config.SchemaType]])((el, transformation) => transformation(el))
+      val res = Config.customRules(generatedObjects)
 
       res.save()
     }
