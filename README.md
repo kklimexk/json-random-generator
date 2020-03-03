@@ -11,7 +11,7 @@ Json random generator is a tool to produce data from json schema automatically, 
 3. Set *SchemaType* in `Config.scala` to POJO type that you are interested in.
 4. Set *numOfRecords* in `Config.scala`.
 5. Run `Main.scala`. Generated json will be in **target** directory.
-6. (Optional) If you are not pleased with default generated values in json, you can always overwrite it, using *generators()* method in `Config.scala` file and run `Main.scala` again.
+6. (Optional) If you are not pleased with default generated values in json, you can always overwrite it, using *customRules* method in `Config.scala` file and run `Main.scala` again.
 
 ## Config
 
@@ -23,7 +23,7 @@ object Config {
 
   def numOfRecords = 10
 
-  def generators(): Seq[Seq[SchemaType] => Seq[SchemaType]] = Seq(
+  def customRules: Seq[SchemaType] => Seq[SchemaType] =
     //You can define here additional rules for specific fields
     //Example:
     objects => Mapping(objects) { rows =>
@@ -48,7 +48,6 @@ object Config {
         r.getPerson.setLastname(Gen.oneOf("Kowalski", "Smith", "Brown", "Wilson", "Miller", "Johnson").sample.get)
       }
     }
-  )
 }
 ```
 
