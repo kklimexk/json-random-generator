@@ -18,7 +18,7 @@
         <jackson.databind.version>2.5.4</jackson.databind.version>
         <scalacheck.version>1.14.3</scalacheck.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <schemaToPojoDir>${basedir}/src/main/resources/schema</schemaToPojoDir>
+        <schema.dir>${basedir}/src/main/resources/schema</schema.dir>
     </properties>
 
     <dependencies>
@@ -121,7 +121,7 @@
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <version>1.0.2</version>
                 <configuration>
-                    <sourceDirectory>${schemaToPojoDir}</sourceDirectory>
+                    <sourceDirectory>${schema.dir}</sourceDirectory>
                     <targetPackage>output</targetPackage>
                     <formatDates>true</formatDates>
                     <formatDateTimes>true</formatDateTimes>
