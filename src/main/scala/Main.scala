@@ -19,7 +19,9 @@ object Main {
 
       val res = Config.customRules(generatedObjects)
 
-      res.save()
+      val targetFileName = s"${res.head.getClass.getSimpleName}.json"
+
+      res.save(args.headOption.map(p => s"$p/$targetFileName").getOrElse(s"target/$targetFileName"))
     }
   }
 }

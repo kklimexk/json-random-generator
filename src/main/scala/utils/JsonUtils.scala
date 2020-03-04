@@ -8,16 +8,16 @@ object JsonUtils {
 
   object Implicits {
     implicit class SaveGeneratedObjects(objects: Seq[_]) {
-      def save(): Unit = {
-        def init(clazzName: String): SequenceWriter = {
-          val file = new File(s"target/$clazzName.json")
+      def save(jsonTargetPath: String): Unit = {
+        def init(): SequenceWriter = {
+          val file = new File(jsonTargetPath)
           val fileWriter = new FileWriter(file, false)
           val mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
           val seqWriter = mapper.writer[ObjectWriter]().writeValuesAsArray(fileWriter)
           seqWriter
         }
 
-        val seqWriter = init(objects.head.getClass.getSimpleName)
+        val seqWriter = init()
 
         objects.foreach(seqWriter.write)
 

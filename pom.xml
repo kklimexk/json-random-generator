@@ -18,6 +18,7 @@
         <jackson.databind.version>2.5.4</jackson.databind.version>
         <scalacheck.version>1.14.3</scalacheck.version>
         <jsr305.version>3.0.2</jsr305.version>
+        <schemaToPojoDir>${basedir}/src/main/resources/schema</schemaToPojoDir>
     </properties>
 
     <dependencies>
@@ -91,11 +92,36 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>prepare-fat-jar</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <archive>
+                                <manifest>
+                                    <mainClass>Main</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.jsonschema2pojo</groupId>
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <version>1.0.2</version>
                 <configuration>
-                    <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
+                    <sourceDirectory>${schemaToPojoDir}</sourceDirectory>
                     <targetPackage>output</targetPackage>
                     <formatDates>true</formatDates>
                     <formatDateTimes>true</formatDateTimes>
