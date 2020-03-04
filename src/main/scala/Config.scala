@@ -1,30 +1,9 @@
-import java.util.Date
 
-import custom.Mapping
-import generators.`type`._
-import org.scalacheck.Gen
-import output.ComplexSchema
-import utils.DateTimeUtils
 
 object Config {
-  type SchemaType = ComplexSchema
+  type SchemaType /* YOUR SCHEMA TYPE HERE (generated POJO type) */
 
   def numOfRecords = 10
 
-  def customRules: Seq[SchemaType] => Seq[SchemaType] =
-    objects => Mapping(objects) { rows =>
-      rows.zipWithIndex.map { case (r, idx) =>
-        r.setCreatedDateTime(
-          DateTypeGenerators.between(new Date(1581809593000L), new Date(1582809593000L)).sample.get
-        )
-        r.setCreatedDate(DateTimeUtils.date2Date(r.getCreatedDateTime))
-        r.setCreatedTime(DateTimeUtils.date2Time(r.getCreatedDateTime))
-
-        r.getBillingAddress.setFlatNo(BigDecimalTypeGenerators.between(1000, 10000, 7, 2).sample.get)
-
-        r.getPerson.setId(idx.toLong)
-        r.getPerson.setName(Gen.oneOf("Gabriel", "Alicja", "Rafal", "Vova", "Milton", "Pawel").sample.get)
-        r.getPerson.setLastname(Gen.oneOf("Kowalski", "Smith", "Brown", "Wilson", "Miller", "Johnson").sample.get)
-      }
-    }
+  def customRules: Seq[SchemaType] => Seq[SchemaType] = identity
 }
