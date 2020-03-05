@@ -1,7 +1,9 @@
-import output.ComplexSchema
+
 
 object Config {
-  type SchemaType = ComplexSchema /* YOUR SCHEMA TYPE HERE (generated POJO type) */
+  type SchemaType = AnyRef /* YOUR SCHEMA TYPE HERE (generated POJO type) */
+
+  def schemaPath = ""
 
   def numOfRecords = 10
 
