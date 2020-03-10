@@ -52,6 +52,11 @@
             <artifactId>jsr305</artifactId>
             <version>${jsr305.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
@@ -127,7 +132,7 @@
                     <formatDateTimes>true</formatDateTimes>
                     <useBigDecimals>true</useBigDecimals>
                     <useLongIntegers>true</useLongIntegers>
-                    <includeJsr305Annotations>true</includeJsr305Annotations>
+                    <includeJsr303Annotations>true</includeJsr303Annotations>
                     <initializeCollections>false</initializeCollections>
                 </configuration>
                 <executions>

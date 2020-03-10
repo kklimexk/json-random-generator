@@ -114,6 +114,12 @@
     "createdTime": {
       "type": "string",
       "format": "time"
+    },
+    "quantityDecimal": {
+      "type": "number",
+      "format": "decimal(5,3)",
+      "minimum": 0.00,
+      "maximum": 100.00
     }
   }
 }
