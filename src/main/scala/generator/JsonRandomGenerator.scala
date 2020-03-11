@@ -1,6 +1,6 @@
 package generator
 
-import java.util
+import java.{lang, util}
 
 import annotations.GeneratorAnnotation.ValueHintDecimal
 import annotations.{GeneratorAnnotation, ValueHintOptions}
@@ -47,7 +47,9 @@ class JsonRandomGenerator(strGen: Gen[String],
               case t if t == classOf[Object] =>
               //Do nothing
               case t if t == classOf[String] =>
-                val valueHintOptions = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value).flatMap { a =>
+                val valueHintOptionsDefinition = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+
+                val valueHintOptions = valueHintOptionsDefinition.flatMap { a =>
                   val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
                   annotation.asInstanceOf[ValueHintOptions].options().toList
                 }
@@ -57,7 +59,16 @@ class JsonRandomGenerator(strGen: Gen[String],
                 invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
-                invokeMethod(obj, Seq(longGen.sample.get),
+                val valueHintOptionsDefinition = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+
+                val valueHintOptions = valueHintOptionsDefinition.flatMap { a =>
+                  val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+                  annotation.asInstanceOf[ValueHintOptions].options().toList
+                }
+
+                val resGen = if (valueHintOptions.nonEmpty) Gen.oneOf(valueHintOptions.map(el => new lang.Long(el))) else longGen
+
+                invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.math.BigDecimal] =>
                 val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
@@ -123,7 +134,16 @@ class JsonRandomGenerator(strGen: Gen[String],
 
           obj.asInstanceOf[java.util.List[String]].addAll(resGen)
         case ltp if ltp == classOf[java.lang.Long] =>
-          obj.asInstanceOf[java.util.List[java.lang.Long]].addAll(longListGen.sample.get)
+          val valueHintOptionsDefinition = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+
+          val valueHintOptions = valueHintOptionsDefinition.flatMap { a =>
+            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+            annotation.asInstanceOf[ValueHintOptions].options().toList
+          }
+
+          val resGen = if (valueHintOptionsDefinition.nonEmpty) valueHintOptions.map(el => new lang.Long(el)).asJava else longListGen.sample.get
+
+          obj.asInstanceOf[java.util.List[java.lang.Long]].addAll(resGen)
         case ltp if ltp == classOf[java.math.BigDecimal] =>
           val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
             .getOrElse(Map("precision" -> "10", "scale" -> "0"))
@@ -168,7 +188,16 @@ class JsonRandomGenerator(strGen: Gen[String],
           invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Long] =>
-          invokeMethod(obj, Seq(longListGen.sample.get),
+          val valueHintOptionsDefinition = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+
+          val valueHintOptions = valueHintOptionsDefinition.flatMap { a =>
+            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+            annotation.asInstanceOf[ValueHintOptions].options().toList
+          }
+
+          val resGen = if (valueHintOptionsDefinition.nonEmpty) valueHintOptions.map(el => new lang.Long(el)).asJava else longListGen.sample.get
+
+          invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.math.BigDecimal] =>
           val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
