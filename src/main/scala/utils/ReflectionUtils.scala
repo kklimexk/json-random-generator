@@ -1,6 +1,8 @@
 package utils
 
-import scala.reflect.{ClassTag, api}
+import java.lang
+
+import scala.reflect._
 import scala.reflect.runtime.universe._
 
 object ReflectionUtils {
@@ -21,6 +23,13 @@ object ReflectionUtils {
       .map(ap => (ap.lhs, ap.rhs))
 
     annotationTypeName(annotation) -> returnValue.map { case (annParam, annValue) => annParam.toString() -> annValue.toString()}.toMap
+  }
+
+  def getAnnotationPropertiesJava[T](fieldName: String, someInstance: T, annotationName: String): lang.annotation.Annotation = {
+    val c = Class.forName(annotationName).asSubclass(classOf[java.lang.annotation.Annotation])
+
+    val myMember = someInstance.getClass.getDeclaredField(fieldName)
+    myMember.getDeclaredAnnotation(c)
   }
 
   def annotationTypeName(annotation: Annotation): String = annotation.tree.tpe.typeSymbol.name.toString

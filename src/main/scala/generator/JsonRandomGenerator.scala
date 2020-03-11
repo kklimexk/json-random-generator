@@ -2,8 +2,8 @@ package generator
 
 import java.util
 
-import annotations.GeneratorAnnotation
 import annotations.GeneratorAnnotation.ValueHintDecimal
+import annotations.{GeneratorAnnotation, ValueHintOptions}
 import org.scalacheck.Gen
 import utils.ReflectionUtils
 import utils.ReflectionUtils._
@@ -47,14 +47,21 @@ class JsonRandomGenerator(strGen: Gen[String],
               case t if t == classOf[Object] =>
               //Do nothing
               case t if t == classOf[String] =>
-                invokeMethod(obj, Seq(strGen.sample.get),
+                val valueHintOptions = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value).flatMap { a =>
+                  val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+                  annotation.asInstanceOf[ValueHintOptions].options().toList
+                }
+
+                val resGen = if (valueHintOptions.nonEmpty) Gen.oneOf(valueHintOptions) else strGen
+
+                invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
                 invokeMethod(obj, Seq(longGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.math.BigDecimal] =>
                 val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
-                    .getOrElse(Map("precision" -> "10", "scale" -> "0"))
+                  .getOrElse(Map("precision" -> "10", "scale" -> "0"))
                 invokeMethod(obj, Seq(bigDecimalGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Boolean] =>
@@ -65,7 +72,7 @@ class JsonRandomGenerator(strGen: Gen[String],
                 invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.util.List[_]] =>
-                generateLists(methodTypeArgs, runtimeM, obj, methodName.toString, fieldAnnotationsProperties, loop, isNested = false)
+                generateLists(methodTypeArgs, runtimeM, obj, methodName.toString, fieldAnnotations, loop, isNested = false)
               case t if t == classOf[java.util.Map[_, _]] && methodTypeArgs.map(_.typeSymbol).map(_.asClass).map(runtimeM.runtimeClass) == List(classOf[String], classOf[String]) =>
                 val generatedMap = mapGen.sample.get
                 generatedMap.foreach {
@@ -93,18 +100,28 @@ class JsonRandomGenerator(strGen: Gen[String],
   }
 
   private def generateLists[A](methodTypeArgs: List[Type], runtimeM: Mirror, obj: Any,
-                               methodName: String, fieldAnnotationsProperties: Seq[(String, Map[String, String])], loop: (Any, Type) => A, isNested: Boolean): Unit = {
+                               methodName: String, fieldAnnotations: List[Annotation], loop: (Any, Type) => A, isNested: Boolean): Unit = {
 
     val listTypeArg = methodTypeArgs.head
     val listTypeSymbolFullName = resolveTypeSymbolFullName(listTypeArg.typeSymbol.typeSignature)
     val listTypeParam = runtimeM.runtimeClass(listTypeArg.typeSymbol.asClass)
+    val fieldAnnotationsProperties = fieldAnnotations.map(a => ReflectionUtils.getAnnotationProperties(a))
 
     if (isNested) {
       listTypeParam match {
         case ltp if ltp == classOf[Object] =>
         //Do nothing
         case ltp if ltp == classOf[String] =>
-          obj.asInstanceOf[java.util.List[String]].addAll(strListGen.sample.get)
+          val valueHintOptionsDefinition = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+
+          val valueHintOptions = valueHintOptionsDefinition.flatMap { a =>
+            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+            annotation.asInstanceOf[ValueHintOptions].options().toList
+          }
+
+          val resGen = if (valueHintOptionsDefinition.nonEmpty) valueHintOptions.asJava else strListGen.sample.get
+
+          obj.asInstanceOf[java.util.List[String]].addAll(resGen)
         case ltp if ltp == classOf[java.lang.Long] =>
           obj.asInstanceOf[java.util.List[java.lang.Long]].addAll(longListGen.sample.get)
         case ltp if ltp == classOf[java.math.BigDecimal] =>
@@ -125,7 +142,7 @@ class JsonRandomGenerator(strGen: Gen[String],
 
           obj.asInstanceOf[java.util.List[java.util.List[Any]]].addAll(outerArr)
 
-          innerArrays.foreach(nestedArray => generateLists(listTypeArg.typeArgs, runtimeM, nestedArray, methodName, fieldAnnotationsProperties, loop, isNested = true))
+          innerArrays.foreach(nestedArray => generateLists(listTypeArg.typeArgs, runtimeM, nestedArray, methodName, fieldAnnotations, loop, isNested = true))
         case _ =>
           val numOfInstancesToGenerate = 2
           val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())
@@ -139,7 +156,16 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[Object] =>
         //Do nothing
         case ltp if ltp == classOf[String] =>
-          invokeMethod(obj, Seq(strListGen.sample.get),
+          val valueHintOptionsDefinition = fieldAnnotations.filter(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+
+          val valueHintOptions = valueHintOptionsDefinition.flatMap { a =>
+            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+            annotation.asInstanceOf[ValueHintOptions].options().toList
+          }
+
+          val resGen = if (valueHintOptionsDefinition.nonEmpty) valueHintOptions.asJava else strListGen.sample.get
+
+          invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Long] =>
           invokeMethod(obj, Seq(longListGen.sample.get),
@@ -165,7 +191,7 @@ class JsonRandomGenerator(strGen: Gen[String],
 
           invokeMethod(obj, Seq(outerArr),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[java.util.List[_]]]))
-          innerArrays.foreach(nestedArray => generateLists(listTypeArg.typeArgs, runtimeM, nestedArray, methodName, fieldAnnotationsProperties, loop, isNested = true))
+          innerArrays.foreach(nestedArray => generateLists(listTypeArg.typeArgs, runtimeM, nestedArray, methodName, fieldAnnotations, loop, isNested = true))
         case _ =>
           val numOfInstancesToGenerate = 2
           val instanceList = (1 to numOfInstancesToGenerate).map(_ => Class.forName(listTypeSymbolFullName).newInstance())
