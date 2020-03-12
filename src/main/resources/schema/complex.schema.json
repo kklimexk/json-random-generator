@@ -124,6 +124,13 @@
     "enumType": {
       "type": "string",
       "enum": ["one", "two", "three", "four"]
+    },
+    "listOfDateTimes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "date-time"
+      }
     }
   }
 }

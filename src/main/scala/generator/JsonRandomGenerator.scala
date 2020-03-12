@@ -1,5 +1,6 @@
 package generator
 
+import java.util.Date
 import java.{lang, util}
 
 import annotations.GeneratorAnnotation.ValueHintDecimal
@@ -81,6 +82,13 @@ class JsonRandomGenerator(strGen: Gen[String],
 
                 invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
+              case t if t == classOf[java.util.Date] =>
+                val resGen = valueHintOptionsAnnotation.map(_.map(el => new Date(el.toLong)))
+                    .map(l => Gen.oneOf(l).sample.get)
+                    .getOrElse(new Date())
+
+                invokeMethod(obj, Seq(resGen),
+                  s"set${methodName.toString.capitalize}", Seq(t))
               case t if t.isEnum =>
                 val enumValues = getEnumValues(t.asInstanceOf[Class[Any]])
                 val resGen = valueHintOptionsAnnotation
@@ -161,6 +169,12 @@ class JsonRandomGenerator(strGen: Gen[String],
             .getOrElse(booleanListGen.sample.get)
 
           obj.asInstanceOf[java.util.List[java.lang.Boolean]].addAll(resGen)
+        case ltp if ltp == classOf[java.util.Date] =>
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new Date(el.toLong)))
+            .map(_.asJava)
+            .getOrElse(Seq(new Date(), new Date()).asJava)
+
+          obj.asInstanceOf[java.util.List[java.util.Date]].addAll(resGen)
         case ltp if ltp.isEnum =>
           val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
 
@@ -219,6 +233,13 @@ class JsonRandomGenerator(strGen: Gen[String],
           val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Boolean(el)))
             .map(_.asJava)
             .getOrElse(booleanListGen.sample.get)
+
+          invokeMethod(obj, Seq(resGen),
+            s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
+        case ltp if ltp == classOf[java.util.Date] =>
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new Date(el.toLong)))
+            .map(_.asJava)
+            .getOrElse(Seq(new Date(), new Date()).asJava)
 
           invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
