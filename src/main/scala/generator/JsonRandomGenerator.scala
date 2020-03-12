@@ -67,10 +67,19 @@ class JsonRandomGenerator(strGen: Gen[String],
               case t if t == classOf[java.math.BigDecimal] =>
                 val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
                   .getOrElse(Map("precision" -> "10", "scale" -> "0"))
-                invokeMethod(obj, Seq(bigDecimalGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get),
+
+                val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
+                  .map(l => Gen.oneOf(l))
+                  .getOrElse(bigDecimalGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt))
+
+                invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Boolean] =>
-                invokeMethod(obj, Seq(booleanGen.sample.get),
+                val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Boolean(el)))
+                    .map(l => Gen.oneOf(l))
+                    .getOrElse(booleanGen)
+
+                invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t.isEnum =>
                 val enumValues = getEnumValues(t.asInstanceOf[Class[Any]])
