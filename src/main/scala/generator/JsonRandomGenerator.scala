@@ -83,7 +83,12 @@ class JsonRandomGenerator(strGen: Gen[String],
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t.isEnum =>
                 val enumValues = getEnumValues(t.asInstanceOf[Class[Any]])
-                invokeMethod(obj, Seq(enumGen(enumValues).sample.get.asInstanceOf[AnyRef]),
+                val resGen = valueHintOptionsAnnotation
+                  .map(_.flatMap(eV => enumValues.filter(_.toString == eV)))
+                  .map(l => Gen.oneOf(l))
+                  .getOrElse(enumGen(enumValues))
+
+                invokeMethod(obj, Seq(resGen.sample.get.asInstanceOf[AnyRef]),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.util.List[_]] =>
                 generateLists(methodTypeArgs, runtimeM, obj, methodName.toString, fieldAnnotations, loop, isNested = false)
