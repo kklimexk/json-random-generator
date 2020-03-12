@@ -38,6 +38,10 @@ class JsonRandomGenerator(strGen: Gen[String],
         val fieldAnnotationsProperties = fieldAnnotations.map(a => ReflectionUtils.getAnnotationProperties(a))
         val valueHintOptionsAnnotation =
           fieldAnnotations.find(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+            .map { a =>
+              val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+              annotation.asInstanceOf[ValueHintOptions].options().toList
+            }
 
         if (methodFullName.startsWith("output")) {
           //println(s"$methodName, $methodReturnType")
@@ -49,18 +53,12 @@ class JsonRandomGenerator(strGen: Gen[String],
               case t if t == classOf[Object] =>
               //Do nothing
               case t if t == classOf[String] =>
-                val resGen = valueHintOptionsAnnotation.map { a =>
-                  val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
-                  annotation.asInstanceOf[ValueHintOptions].options().toList
-                }.map(l => Gen.oneOf(l)).getOrElse(strGen)
+                val resGen = valueHintOptionsAnnotation.map(l => Gen.oneOf(l)).getOrElse(strGen)
 
                 invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
-                val resGen = valueHintOptionsAnnotation.map { a =>
-                  val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
-                  annotation.asInstanceOf[ValueHintOptions].options().toList
-                }.map(_.map(el => new lang.Long(el)))
+                val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Long(el)))
                   .map(l => Gen.oneOf(l))
                   .getOrElse(longGen)
 
@@ -115,23 +113,21 @@ class JsonRandomGenerator(strGen: Gen[String],
     val fieldAnnotationsProperties = fieldAnnotations.map(a => ReflectionUtils.getAnnotationProperties(a))
     val valueHintOptionsAnnotation =
       fieldAnnotations.find(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
+        .map { a =>
+          val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
+          annotation.asInstanceOf[ValueHintOptions].options().toList
+        }
 
     if (isNested) {
       listTypeParam match {
         case ltp if ltp == classOf[Object] =>
         //Do nothing
         case ltp if ltp == classOf[String] =>
-          val resGen = valueHintOptionsAnnotation.map { a =>
-            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
-            annotation.asInstanceOf[ValueHintOptions].options().toList
-          }.map(_.asJava).getOrElse(strListGen.sample.get)
+          val resGen = valueHintOptionsAnnotation.map(_.asJava).getOrElse(strListGen.sample.get)
 
           obj.asInstanceOf[java.util.List[String]].addAll(resGen)
         case ltp if ltp == classOf[java.lang.Long] =>
-          val resGen = valueHintOptionsAnnotation.map { a =>
-            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
-            annotation.asInstanceOf[ValueHintOptions].options().toList
-          }.map(_.map(el => new lang.Long(el)))
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Long(el)))
             .map(_.asJava)
             .getOrElse(longListGen.sample.get)
 
@@ -168,19 +164,13 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[Object] =>
         //Do nothing
         case ltp if ltp == classOf[String] =>
-          val resGen = valueHintOptionsAnnotation.map { a =>
-            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
-            annotation.asInstanceOf[ValueHintOptions].options().toList
-          }.map(_.asJava)
+          val resGen = valueHintOptionsAnnotation.map(_.asJava)
             .getOrElse(strListGen.sample.get)
 
           invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Long] =>
-          val resGen = valueHintOptionsAnnotation.map { a =>
-            val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
-            annotation.asInstanceOf[ValueHintOptions].options().toList
-          }.map(_.map(el => new lang.Long(el)))
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Long(el)))
             .map(_.asJava)
             .getOrElse(longListGen.sample.get)
 
