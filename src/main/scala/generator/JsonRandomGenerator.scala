@@ -149,12 +149,27 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[java.math.BigDecimal] =>
           val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
             .getOrElse(Map("precision" -> "10", "scale" -> "0"))
-          obj.asInstanceOf[java.util.List[java.math.BigDecimal]].addAll(bigDecimalListGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get)
+
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
+            .map(_.asJava)
+            .getOrElse(bigDecimalListGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get)
+
+          obj.asInstanceOf[java.util.List[java.math.BigDecimal]].addAll(resGen)
         case ltp if ltp == classOf[java.lang.Boolean] =>
-          obj.asInstanceOf[java.util.List[java.lang.Boolean]].addAll(booleanListGen.sample.get)
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Boolean(el)))
+            .map(_.asJava)
+            .getOrElse(booleanListGen.sample.get)
+
+          obj.asInstanceOf[java.util.List[java.lang.Boolean]].addAll(resGen)
         case ltp if ltp.isEnum =>
           val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
-          obj.asInstanceOf[java.util.List[Any]].addAll(enumListGen(2, enumValues).sample.get)
+
+          val resGen = valueHintOptionsAnnotation
+            .map(_.flatMap(eV => enumValues.filter(_.toString == eV)))
+            .map(_.asJava)
+            .getOrElse(enumListGen(2, enumValues).sample.get)
+
+          obj.asInstanceOf[java.util.List[Any]].addAll(resGen)
         case ltp if ltp == classOf[java.util.List[_]] =>
           val numOfElemInOuterArr = 2
           val outerArr = new util.ArrayList[java.util.List[Any]]()
@@ -193,14 +208,29 @@ class JsonRandomGenerator(strGen: Gen[String],
         case ltp if ltp == classOf[java.math.BigDecimal] =>
           val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
             .getOrElse(Map("precision" -> "10", "scale" -> "0"))
-          invokeMethod(obj, Seq(bigDecimalListGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get),
+
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
+            .map(_.asJava)
+            .getOrElse(bigDecimalListGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get)
+
+          invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.lang.Boolean] =>
-          invokeMethod(obj, Seq(booleanListGen.sample.get),
+          val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Boolean(el)))
+            .map(_.asJava)
+            .getOrElse(booleanListGen.sample.get)
+
+          invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp.isEnum =>
           val enumValues = getEnumValues(ltp.asInstanceOf[Class[Any]])
-          invokeMethod(obj, Seq(enumListGen(2, enumValues).sample.get),
+
+          val resGen = valueHintOptionsAnnotation
+            .map(_.flatMap(eV => enumValues.filter(_.toString == eV)))
+            .map(_.asJava)
+            .getOrElse(enumListGen(2, enumValues).sample.get)
+
+          invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.util.List[_]] =>
           val numOfElemInOuterArr = 2
