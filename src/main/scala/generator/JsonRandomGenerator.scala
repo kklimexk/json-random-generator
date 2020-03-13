@@ -3,7 +3,7 @@ package generator
 import java.util.Date
 import java.{lang, util}
 
-import annotations.GeneratorAnnotation.{ValueHintDecimal, ValueHintIterator, ValueHintPrefix}
+import annotations.GeneratorAnnotation.{ValueHintDecimal, ValueHintIterator, ValueHintPostfix, ValueHintPrefix}
 import annotations.{GeneratorAnnotation, ValueHintOptions}
 import generators.field.{IteratorField, IteratorFieldGenerator}
 import org.scalacheck.Gen
@@ -51,7 +51,11 @@ class JsonRandomGenerator(strGen: Gen[String],
           .map(p => IteratorFieldGenerator.next(IteratorField(methodFullName, p("start").toInt), p("step").toInt))
           .map(_.state)
         def valueHintPrefixAnnotation = resolvePropertiesForAnnotation(ValueHintPrefix, fieldAnnotationsProperties)
+          .map(_.mapValues(_.replaceAll("^\"|\"$", "")))
           .getOrElse(Map("prefix" -> ""))
+        def valueHintPostfixAnnotation = resolvePropertiesForAnnotation(ValueHintPostfix, fieldAnnotationsProperties)
+          .map(_.mapValues(_.replaceAll("^\"|\"$", "")))
+          .getOrElse(Map("postfix" -> ""))
 
         if (methodFullName.startsWith("output")) {
           //println(s"$methodName, $methodReturnType")
@@ -72,7 +76,7 @@ class JsonRandomGenerator(strGen: Gen[String],
                   .getOrElse(strGen.sample.get)
 
                 invokeMethod(obj,
-                  Seq(s"${valueHintPrefixAnnotation("prefix").replaceAll("^\"|\"$", "")}$resGen"),
+                  Seq(s"${valueHintPrefixAnnotation("prefix")}$resGen${valueHintPostfixAnnotation("postfix")}"),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
                 def valueHintIterator = valueHintIteratorAnnotation

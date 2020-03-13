@@ -21,4 +21,8 @@ object GeneratorAnnotation {
   final case object ValueHintPrefix extends GeneratorAnnotation {
     val value = "ValueHintPrefix"
   }
+
+  final case object ValueHintPostfix extends GeneratorAnnotation {
+    val value = "ValueHintPostfix"
+  }
 }
