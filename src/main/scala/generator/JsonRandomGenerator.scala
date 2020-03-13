@@ -101,8 +101,13 @@ class JsonRandomGenerator(strGen: Gen[String],
                 invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.util.Date] =>
+                def valueHintIterator = valueHintIteratorAnnotation
+                  .map(el => new lang.Long(el))
+                  .map(el => new Date(el))
+
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new Date(el.toLong)))
                     .map(l => Gen.oneOf(l).sample.get)
+                    .orElse(valueHintIterator)
                     .getOrElse(new Date())
 
                 invokeMethod(obj, Seq(resGen),
