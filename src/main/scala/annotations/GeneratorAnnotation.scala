@@ -13,4 +13,8 @@ object GeneratorAnnotation {
   final case object ValueHintOptions extends GeneratorAnnotation {
     val value = "ValueHintOptions"
   }
+
+  final case object ValueHintIterator extends GeneratorAnnotation {
+    val value = "ValueHintIterator"
+  }
 }

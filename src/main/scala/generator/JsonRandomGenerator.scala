@@ -3,8 +3,9 @@ package generator
 import java.util.Date
 import java.{lang, util}
 
-import annotations.GeneratorAnnotation.ValueHintDecimal
+import annotations.GeneratorAnnotation.{ValueHintDecimal, ValueHintIterator}
 import annotations.{GeneratorAnnotation, ValueHintOptions}
+import generators.field.{IteratorField, IteratorFieldGenerator}
 import org.scalacheck.Gen
 import utils.ReflectionUtils
 import utils.ReflectionUtils._
@@ -59,11 +60,17 @@ class JsonRandomGenerator(strGen: Gen[String],
                 invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
-                val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Long(el)))
-                  .map(l => Gen.oneOf(l))
-                  .getOrElse(longGen)
+                val valueHintIterator = resolvePropertiesForAnnotation(ValueHintIterator, fieldAnnotationsProperties)
+                  .map(p => IteratorFieldGenerator.increase(IteratorField(methodFullName, p("start").toInt), p("step").toInt))
+                  .map(_.state)
+                  .map(el => new lang.Long(el))
 
-                invokeMethod(obj, Seq(resGen.sample.get),
+                val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Long(el)))
+                  .map(l => Gen.oneOf(l).sample.get)
+                  .orElse(valueHintIterator)
+                  .getOrElse(longGen.sample.get)
+
+                invokeMethod(obj, Seq(resGen),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.math.BigDecimal] =>
                 val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
