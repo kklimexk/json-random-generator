@@ -38,6 +38,9 @@ class JsonRandomGenerator(strGen: Gen[String],
         val methodTypeArgs = methodReturnType.typeArgs
         val fieldAnnotations = field.annotations
         val fieldAnnotationsProperties = fieldAnnotations.map(a => ReflectionUtils.getAnnotationProperties(a))
+
+        def valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
+          .getOrElse(Map("precision" -> "10", "scale" -> "0"))
         def valueHintOptionsAnnotation =
           fieldAnnotations.find(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
             .map { a =>
@@ -82,9 +85,6 @@ class JsonRandomGenerator(strGen: Gen[String],
               case t if t == classOf[java.math.BigDecimal] =>
                 def valueHintIterator = valueHintIteratorAnnotation
                   .map(el => new java.math.BigDecimal(el))
-
-                val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
-                  .getOrElse(Map("precision" -> "10", "scale" -> "0"))
 
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
                   .map(l => Gen.oneOf(l).sample.get)
@@ -151,7 +151,10 @@ class JsonRandomGenerator(strGen: Gen[String],
     val listTypeSymbolFullName = resolveTypeSymbolFullName(listTypeArg.typeSymbol.typeSignature)
     val listTypeParam = runtimeM.runtimeClass(listTypeArg.typeSymbol.asClass)
     val fieldAnnotationsProperties = fieldAnnotations.map(a => ReflectionUtils.getAnnotationProperties(a))
-    val valueHintOptionsAnnotation =
+
+    def valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
+      .getOrElse(Map("precision" -> "10", "scale" -> "0"))
+    def valueHintOptionsAnnotation =
       fieldAnnotations.find(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
         .map { a =>
           val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
@@ -173,9 +176,6 @@ class JsonRandomGenerator(strGen: Gen[String],
 
           obj.asInstanceOf[java.util.List[java.lang.Long]].addAll(resGen)
         case ltp if ltp == classOf[java.math.BigDecimal] =>
-          val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
-            .getOrElse(Map("precision" -> "10", "scale" -> "0"))
-
           val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
             .map(_.asJava)
             .getOrElse(bigDecimalListGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get)
@@ -238,9 +238,6 @@ class JsonRandomGenerator(strGen: Gen[String],
           invokeMethod(obj, Seq(resGen),
             s"set${methodName.capitalize}", Seq(classOf[java.util.List[_]]))
         case ltp if ltp == classOf[java.math.BigDecimal] =>
-          val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
-            .getOrElse(Map("precision" -> "10", "scale" -> "0"))
-
           val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
             .map(_.asJava)
             .getOrElse(bigDecimalListGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get)
