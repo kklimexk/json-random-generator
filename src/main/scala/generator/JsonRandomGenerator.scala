@@ -58,9 +58,15 @@ class JsonRandomGenerator(strGen: Gen[String],
               case t if t == classOf[Object] =>
               //Do nothing
               case t if t == classOf[String] =>
-                val resGen = valueHintOptionsAnnotation.map(l => Gen.oneOf(l)).getOrElse(strGen)
+                def valueHintIterator = valueHintIteratorAnnotation
+                  .map(_.toString)
 
-                invokeMethod(obj, Seq(resGen.sample.get),
+                val resGen = valueHintOptionsAnnotation
+                  .map(l => Gen.oneOf(l).sample.get)
+                  .orElse(valueHintIterator)
+                  .getOrElse(strGen.sample.get)
+
+                invokeMethod(obj, Seq(resGen),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
                 def valueHintIterator = valueHintIteratorAnnotation
