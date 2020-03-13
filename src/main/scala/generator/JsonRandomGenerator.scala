@@ -38,12 +38,15 @@ class JsonRandomGenerator(strGen: Gen[String],
         val methodTypeArgs = methodReturnType.typeArgs
         val fieldAnnotations = field.annotations
         val fieldAnnotationsProperties = fieldAnnotations.map(a => ReflectionUtils.getAnnotationProperties(a))
-        val valueHintOptionsAnnotation =
+        def valueHintOptionsAnnotation =
           fieldAnnotations.find(a => a.tree.tpe.typeSymbol.name.toString == GeneratorAnnotation.ValueHintOptions.value)
             .map { a =>
               val annotation = ReflectionUtils.getAnnotationPropertiesJava(methodName.toString, obj, a.tree.tpe.typeSymbol.fullName)
               annotation.asInstanceOf[ValueHintOptions].options().toList
             }
+        def valueHintIteratorAnnotation = resolvePropertiesForAnnotation(ValueHintIterator, fieldAnnotationsProperties)
+          .map(p => IteratorFieldGenerator.next(IteratorField(methodFullName, p("start").toInt), p("step").toInt))
+          .map(_.state)
 
         if (methodFullName.startsWith("output")) {
           //println(s"$methodName, $methodReturnType")
@@ -60,9 +63,7 @@ class JsonRandomGenerator(strGen: Gen[String],
                 invokeMethod(obj, Seq(resGen.sample.get),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
-                def valueHintIterator = resolvePropertiesForAnnotation(ValueHintIterator, fieldAnnotationsProperties)
-                  .map(p => IteratorFieldGenerator.next(IteratorField(methodFullName, p("start").toInt), p("step").toInt))
-                  .map(_.state)
+                def valueHintIterator = valueHintIteratorAnnotation
                   .map(el => new lang.Long(el))
 
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Long(el)))
@@ -73,14 +74,18 @@ class JsonRandomGenerator(strGen: Gen[String],
                 invokeMethod(obj, Seq(resGen),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.math.BigDecimal] =>
+                def valueHintIterator = valueHintIteratorAnnotation
+                  .map(el => new java.math.BigDecimal(el))
+
                 val valueHintDecimal = resolvePropertiesForAnnotation(ValueHintDecimal, fieldAnnotationsProperties)
                   .getOrElse(Map("precision" -> "10", "scale" -> "0"))
 
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
-                  .map(l => Gen.oneOf(l))
-                  .getOrElse(bigDecimalGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt))
+                  .map(l => Gen.oneOf(l).sample.get)
+                  .orElse(valueHintIterator)
+                  .getOrElse(bigDecimalGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get)
 
-                invokeMethod(obj, Seq(resGen.sample.get),
+                invokeMethod(obj, Seq(resGen),
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Boolean] =>
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Boolean(el)))
