@@ -61,7 +61,7 @@ class JsonRandomGenerator(strGen: Gen[String],
                   s"set${methodName.toString.capitalize}", Seq(t))
               case t if t == classOf[java.lang.Long] =>
                 val valueHintIterator = resolvePropertiesForAnnotation(ValueHintIterator, fieldAnnotationsProperties)
-                  .map(p => IteratorFieldGenerator.increase(IteratorField(methodFullName, p("start").toInt), p("step").toInt))
+                  .map(p => IteratorFieldGenerator.next(IteratorField(methodFullName, p("start").toInt), p("step").toInt))
                   .map(_.state)
                   .map(el => new lang.Long(el))
 

@@ -7,7 +7,7 @@ final case class IteratorField(fullName: String, state: Long)
 object IteratorFieldGenerator {
   private[this] val iteratorsMap = mutable.Map.empty[String, IteratorField]
 
-  def increase(iterator: IteratorField, step: Long): IteratorField = {
+  def next(iterator: IteratorField, step: Long): IteratorField = {
     iteratorsMap.find(_._1 == iterator.fullName) match {
       case Some((fieldName, it)) =>
         val updatedIterator = it.copy(state = it.state + step)
@@ -18,6 +18,4 @@ object IteratorFieldGenerator {
         iterator
     }
   }
-
-  def getIteratorsMap(): Map[String, IteratorField] = iteratorsMap.toMap
 }
