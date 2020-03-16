@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ValueHintRange {
-    int min() default 0;
-    int max() default 0;
+    long min() default 0;
+    long max() default 0;
 }

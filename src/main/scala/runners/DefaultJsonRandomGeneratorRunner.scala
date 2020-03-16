@@ -6,8 +6,8 @@ import generators.`type`._
 class DefaultJsonRandomGeneratorRunner extends JsonRandomGeneratorRunner {
   override val jsonRandomGenerator: JsonRandomGenerator = new JsonRandomGenerator(
     StringTypeGenerators.default,
-    LongTypeGenerators.between(1, 100),
-    BigDecimalTypeGenerators.between(1, 100),
+    LongTypeGenerators.between,
+    BigDecimalTypeGenerators.between,
     BooleanTypeGenerators.default,
     EnumTypeGenerators.default,
     MapTypeGenerators.default,

@@ -3,7 +3,7 @@ package generator
 import java.util.Date
 import java.{lang, util}
 
-import annotations.GeneratorAnnotation.{ValueHintDecimal, ValueHintIterator, ValueHintPostfix, ValueHintPrefix}
+import annotations.GeneratorAnnotation.{ValueHintDecimal, ValueHintIterator, ValueHintPostfix, ValueHintPrefix, ValueHintRange}
 import annotations.{GeneratorAnnotation, ValueHintOptions}
 import generators.field.{IteratorField, IteratorFieldGenerator}
 import org.scalacheck.Gen
@@ -14,8 +14,8 @@ import scala.collection.JavaConverters._
 import scala.reflect.runtime.universe._
 
 class JsonRandomGenerator(strGen: Gen[String],
-                          longGen: Gen[java.lang.Long],
-                          bigDecimalGen: (Int, Int) => Gen[java.math.BigDecimal],
+                          longGen: (Long, Long) => Gen[java.lang.Long],
+                          bigDecimalGen: (Long, Long, Int, Int) => Gen[java.math.BigDecimal],
                           booleanGen: Gen[java.lang.Boolean],
                           enumGen: Array[Any] => Gen[Any],
                           mapGen: Gen[Map[String, String]],
@@ -56,6 +56,8 @@ class JsonRandomGenerator(strGen: Gen[String],
         def valueHintPostfixAnnotation = resolvePropertiesForAnnotation(ValueHintPostfix, fieldAnnotationsProperties)
           .map(_.mapValues(_.replaceAll("^\"|\"$", "")))
           .getOrElse(Map("postfix" -> ""))
+        def valueHintRangeAnnotation = resolvePropertiesForAnnotation(ValueHintRange, fieldAnnotationsProperties)
+          .map(m => (m("min").filter(c => c != 'l' && c != 'L').toLong, m("max").filter(c => c != 'l' && c != 'L').toLong))
 
         if (methodFullName.startsWith("output")) {
           //println(s"$methodName, $methodReturnType")
@@ -82,10 +84,13 @@ class JsonRandomGenerator(strGen: Gen[String],
                 def valueHintIterator = valueHintIteratorAnnotation
                   .map(el => new lang.Long(el))
 
+                lazy val (valueHintRangeMin, valueHintRangeMax) =
+                  valueHintRangeAnnotation.getOrElse((1L, 100L))
+
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new lang.Long(el)))
                   .map(l => Gen.oneOf(l).sample.get)
                   .orElse(valueHintIterator)
-                  .getOrElse(longGen.sample.get)
+                  .getOrElse(longGen(valueHintRangeMin, valueHintRangeMax).sample.get)
 
                 invokeMethod(obj, Seq(resGen),
                   s"set${methodName.toString.capitalize}", Seq(t))
@@ -93,10 +98,14 @@ class JsonRandomGenerator(strGen: Gen[String],
                 def valueHintIterator = valueHintIteratorAnnotation
                   .map(el => new java.math.BigDecimal(el))
 
+                lazy val (valueHintRangeMin, valueHintRangeMax) =
+                  valueHintRangeAnnotation.getOrElse((1L, 100L))
+
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new java.math.BigDecimal(el)))
                   .map(l => Gen.oneOf(l).sample.get)
                   .orElse(valueHintIterator)
-                  .getOrElse(bigDecimalGen(valueHintDecimal("precision").toInt, valueHintDecimal("scale").toInt).sample.get)
+                  .getOrElse(bigDecimalGen(valueHintRangeMin, valueHintRangeMax, valueHintDecimal("precision").toInt,
+                    valueHintDecimal("scale").toInt).sample.get)
 
                 invokeMethod(obj, Seq(resGen),
                   s"set${methodName.toString.capitalize}", Seq(t))
