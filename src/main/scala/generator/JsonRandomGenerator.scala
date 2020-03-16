@@ -48,7 +48,7 @@ class JsonRandomGenerator(strGen: Gen[String],
               annotation.asInstanceOf[ValueHintOptions].options().toList
             }
         def valueHintIteratorAnnotation = resolvePropertiesForAnnotation(ValueHintIterator, fieldAnnotationsProperties)
-          .map(p => IteratorFieldGenerator.next(IteratorField(methodFullName, p("start").toInt), p("step").toInt))
+          .map(p => IteratorFieldGenerator.next(IteratorField(methodFullName, p("start").filter(c => c != 'l' && c != 'L').toLong), p("step").filter(c => c != 'l' && c != 'L').toLong))
           .map(_.state)
         def valueHintPrefixAnnotation = resolvePropertiesForAnnotation(ValueHintPrefix, fieldAnnotationsProperties)
           .map(_.mapValues(_.replaceAll("^\"|\"$", "")))

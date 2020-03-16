@@ -8,8 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ValueHintIterator {
-    int start() default 0;
-    int restart() default 0;
-    int step() default 0;
-    int initial() default 0;
+    long start() default 0;
+    long step() default 0;
 }
