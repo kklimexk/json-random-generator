@@ -9,6 +9,7 @@ class DefaultJsonRandomGeneratorRunner extends JsonRandomGeneratorRunner {
     LongTypeGenerators.between,
     BigDecimalTypeGenerators.between,
     BooleanTypeGenerators.default,
+    DateTypeGenerators.between,
     EnumTypeGenerators.default,
     MapTypeGenerators.default,
     ListTypeGenerators.defaultEnumListTypeGenerator,

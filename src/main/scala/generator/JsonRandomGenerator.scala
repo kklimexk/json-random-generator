@@ -17,6 +17,7 @@ class JsonRandomGenerator(strGen: Gen[String],
                           longGen: (Long, Long) => Gen[java.lang.Long],
                           bigDecimalGen: (Long, Long, Int, Int) => Gen[java.math.BigDecimal],
                           booleanGen: Gen[java.lang.Boolean],
+                          dateGen: (java.util.Date, java.util.Date) => Gen[java.util.Date],
                           enumGen: Array[Any] => Gen[Any],
                           mapGen: Gen[Map[String, String]],
                           enumListGen: (Int, Array[Any]) => Gen[util.List[Any]],
@@ -121,9 +122,14 @@ class JsonRandomGenerator(strGen: Gen[String],
                   .map(el => new lang.Long(el))
                   .map(el => new Date(el))
 
+                lazy val valueHintRange =
+                  valueHintRangeAnnotation.map { case (start, to) => dateGen(new Date(start), new Date(to)) }
+                  .map(_.sample.get)
+
                 val resGen = valueHintOptionsAnnotation.map(_.map(el => new Date(el.toLong)))
                     .map(l => Gen.oneOf(l).sample.get)
                     .orElse(valueHintIterator)
+                    .orElse(valueHintRange)
                     .getOrElse(new Date())
 
                 invokeMethod(obj, Seq(resGen),
