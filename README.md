@@ -57,16 +57,16 @@ object Config {
 ## Usage for CLI
 
 1. Place your schema somewhere on the disk e.g. */c/schema*
-2. Run: *mvn clean package -Dschema.dir=/c/schema*
+2. Run: `mvn clean package -Dschema.dir=/c/schema` to build the project with generated object oriented representation of your json schema
 3. (Optional) If you want to check what classes have been generated, you can check using this command: 
 
-*jar tf target/json-random-generator-1.0-SNAPSHOT.jar | grep ^output**
+`jar tf target/json-random-generator-1.0-SNAPSHOT.jar | grep ^output*`
 
 All the classes are generated in *output* folder.
 
 4. Run: 
 
-*java -jar target/json-random-generator-1.0-SNAPSHOT.jar output.<path_to_POJO>.<POJO_Class_Name> <num_of_events> <output_dir>*
+`java -jar target/json-random-generator-1.0-SNAPSHOT.jar output.<path_to_POJO>.<POJO_Class_Name> <num_of_events> <output_dir>`
 
 ## Supported Types
 
