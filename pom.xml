@@ -17,7 +17,6 @@
         <commons.lang.version>2.4</commons.lang.version>
         <jackson.databind.version>2.5.4</jackson.databind.version>
         <scalacheck.version>1.14.3</scalacheck.version>
-        <jsr305.version>3.0.2</jsr305.version>
         <schema.dir>${basedir}/src/main/resources/schema</schema.dir>
     </properties>
 
@@ -46,11 +45,6 @@
             <groupId>org.scalacheck</groupId>
             <artifactId>scalacheck_${scala.compat.version}</artifactId>
             <version>${scalacheck.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>${jsr305.version}</version>
         </dependency>
         <!-- Test -->
         <dependency>
@@ -127,7 +121,6 @@
                     <formatDateTimes>true</formatDateTimes>
                     <useBigDecimals>true</useBigDecimals>
                     <useLongIntegers>true</useLongIntegers>
-                    <includeJsr305Annotations>true</includeJsr305Annotations>
                     <initializeCollections>false</initializeCollections>
                 </configuration>
                 <executions>
