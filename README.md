@@ -58,7 +58,7 @@ object Config {
 
 1. Place your schema somewhere on the disk e.g. */c/schema*
 2. Run: `mvn clean package -Dschema.dir=/c/schema` to build the project with generated object oriented representation of your json schema
-3. (Optional) If you want to check what classes have been generated, you can check using this command: 
+3. (Optional) If you want to check what classes have been generated, you can use this command: 
 
 `jar tf target/json-random-generator-1.0-SNAPSHOT.jar | grep ^output*`
 
