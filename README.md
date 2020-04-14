@@ -70,7 +70,7 @@ All the classes are generated in *output* folder.
 
 ## Mocking data for CLI usage
 
-Json random generator supports mocking data by using annotations that was developed in this project: https://github.com/kklimexk/jsonschema2pojo/tree/develop. Basically it was required to extend jsonschmema2pojo with these annotations that are currently supported in generator:
+Json random generator supports mocking data by using annotations that was developed in this project: https://github.com/kklimexk/jsonschema2pojo/tree/develop. If you want to use these annotations, integration between projects is needed, because the modified jsonschema2pojo is not in the central maven repository. Basically we need to modify `pom.xml` in json random generator to use jsonschema2pojo in version `1.0.3-SNAPSHOT`. Currently supported annotations in generator:
 
 - ValueHintDecimal
 - ValueHintOptions
