@@ -68,6 +68,164 @@ All the classes are generated in *output* folder.
 
 `java -jar target/json-random-generator-1.0-SNAPSHOT.jar output.<path_to_POJO>.<POJO_Class_Name> <num_of_events> <output_dir>`
 
+## Mocking data for CLI usage
+
+Json random generator supports mocking data by using annotations that was developed in this project: https://github.com/kklimexk/jsonschema2pojo/tree/develop. Basically it was required to extend jsonschmema2pojo with these annotations that are currently supported in generator:
+
+- ValueHintDecimal
+- ValueHintOptions
+- ValueHintIterator
+- ValueHintPrefix
+- ValueHintPostfix
+- ValueHintRange
+
+These annotations are generated in the POJOs when user defines `jrg.properties` for schema to control generating fields e.g.
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "definitions": {
+    "address": {
+      "type": "object",
+      "properties": {
+        "street_address": { "type": "string" },
+        "city":           { "type": "string" , "jrg.properties" : {
+                                              "options" : [
+                                              "London",
+                                              "New York",
+                                              "Tokyo"],
+                                              "postfix" :"_city"
+                                              }},
+        "state":          { "type": "string" ,"jrg.properties" : {
+                                                "regex" : "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+                                                "length" : {
+                                                  "min" : 4,
+                                                  "max" : 10
+                                                }
+                                              }},
+        "buildingNo":     { "type": "integer" },
+        "flatNo":         { "type": "number", "jrg.properties" : {
+                                                "iterator" : {
+                                                  "start": 1,
+                                                  "restart": 200,
+                                                  "step" : 5,
+                                                  "initial" :100
+                                                },
+                                                "prefix" :"LN"
+                                              }},
+        "isTaken":        { "type": "boolean" },
+        "credit":         { "type": "number","jrg.properties" : {
+                                              "decimal" : {
+                                                "precision": 11,
+                                                "scale": 4
+                                              },
+                                              "range" : {
+                                                "min" : 3,
+                                                "max" : 44
+                                              }
+
+                                            }},
+        "info":           { "type": "null" },
+        "orderReleaseDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "orderReleaseDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },        
+        "orderReleaseTime": {
+          "type": "string",
+          "format": "time"
+        },
+        "typeOfAddress":  { "enum": ["normal", "special"] }
+      },
+      "required": ["street_address", "city", "state"]
+    },
+    
+    "numbersArr": {
+      "type": "array", "jrg.properties" : {
+        "decimal" : {
+          "precision": 11,
+          "scale": 4
+        }
+      },
+      "items": {
+        "type": "number"
+    }}
+  },
+
+  "type": "object",
+
+  "properties": {
+    "billing_address": { "$ref": "#/definitions/address" },
+    "shipping_address": {
+      "allOf": [
+        { "$ref": "#/definitions/address" },
+        { "properties":
+        { "type": { "enum": [ "residential", "business" ] } },
+          "required": ["type"]
+        }
+      ]
+    },
+    "numbersArray": { "$ref": "#/definitions/numbersArr" },
+    "stringField": { "type": "string" },
+    "coolMap": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "integerArray": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "doubleArray": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "booleanArray": {
+      "type": "array",
+      "items": {
+        "type": "boolean"
+      }
+    },
+    "addressArray": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/address" }
+    },
+    "integerNestedArray": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      }
+    },
+    "addressNestedArray": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/address" }
+        }
+      }
+    }
+  }
+}
+
+```
+
 ## Supported Types
 
 |   Schema type        |      Java type                                             |
